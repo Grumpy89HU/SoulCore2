@@ -1,148 +1,95 @@
-import yaml
 import logging
+import yaml
+import time
+import asyncio
 import os
-from pathlib import Path
-
-# Loaderek importálása
-#from src.loaders.exl2_loader import EXL2Slot
-from src.loaders.gguf_loader import GGUFSlot
-from src.loaders.transformers_loader import TransformersSlot
-
-# Speciális logikai slotok importálása
-from src.slots.scribe import Scribe
-from src.slots.scribe import Valet # Feltételezve, hogy egy fájlban vannak vagy külön importálod
-from src.slots.specialized_slots import Sovereign
+import contextlib
+from concurrent.futures import ThreadPoolExecutor
 
 class Orchestrator:
-    # 1. Meghatározzuk, melyik engine-hez melyik Loader osztály tartozik
-    ENGINE_MAPPING = {
-        "gguf": "src.loaders.gguf_loader.GGUFSlot",
-        "transformers": "src.loaders.transformers_loader.TransformersSlot"
-    }
-
-    # 2. Meghatározzuk, melyik névhez melyik Logikai osztály tartozik
-    ROLE_MAPPING = {
-        "scribe": Scribe,
-        "valet": Valet,
-        "queen": Sovereign,
-        "king": Sovereign
-    }
-
     def __init__(self, config_path="conf/soulcore_config.yaml"):
-        self.config = self._load_config(config_path)
-        self.logger = self._setup_logging()
+        self.logger = logging.getLogger("Kernel")
+        self.config_path = config_path
+        self.config = self._load_config()
         self.slots = {}
-        
-        self.logger.info(f"--- {self.config['project']['name']} v{self.config['project']['version']} Boot Sequence ---")
-        self._validate_folders()
+        self.outbound_queue = asyncio.Queue()
+        self.executor = ThreadPoolExecutor(max_workers=3)
 
-    def _load_config(self, path):
-        if not os.path.exists(path):
-            raise FileNotFoundError(f"Konfiguráció nem található: {path}")
-        with open(path, 'r', encoding='utf-8') as f:
+    def _load_config(self):
+        with open(self.config_path, 'r', encoding='utf-8') as f:
             return yaml.safe_load(f)
 
-    def _setup_logging(self):
-        log_dir = Path(self.config['storage']['vault_root']) / "logs"
-        log_dir.mkdir(parents=True, exist_ok=True)
-        
-        logging.basicConfig(
-            level=logging.INFO,
-            format='%(asctime)s [%(levelname)s] %(name)s: %(message)s',
-            handlers=[
-                logging.FileHandler(log_dir / "system.log", encoding='utf-8'),
-                logging.StreamHandler()
-            ]
-        )
-        return logging.getLogger("Kernel")
-
-    def _validate_folders(self):
-        paths = [
-            self.config['storage']['model_root'],
-            self.config['storage']['vault_root'],
-            os.path.join(self.config['storage']['vault_root'], "db")
-        ]
-        for p in paths:
-            Path(p).mkdir(parents=True, exist_ok=True)
-
-    def _initialize_slot(self, name, params):
-        """Dinamikus slot betöltő motor, ami kezeli az engine-t és a szerepkört is."""
-        if not params.get('enabled'):
-            return None
-
-        engine_type = params.get('engine', 'transformers') # Alapértelmezett a legbiztosabb
-        
-        # Kiválasztjuk a megfelelő Loader-t (Pl. GGUFSlot)
-        loader_class = self.ENGINE_MAPPING.get(engine_type, TransformersSlot)
-        
-        # Kiválasztjuk a logikai kiegészítést (Pl. Scribe)
-        # Itt egy Python trükköt használunk: dinamikusan létrehozunk egy osztályt, 
-        # ami a Logikai szerepből ÉS a Loaderből is örököl.
-        role_class = self.ROLE_MAPPING.get(name)
-
-        self.logger.info(f"Slot inicializálása: {name} | Engine: {engine_type} | Role: {role_class.__name__ if role_class else 'Base'}")
-
-        try:
-            # Létrehozzuk a példányt. Mivel a Scribe az EXL2Slot-ból (vagy most már GGUF-ból) származik,
-            # a role_class-t példányosítjuk, de figyelni kell az öröklődésre!
-            # Ha a Scribe fixen EXL2Slot-ból származik a fájlban, akkor itt hívjuk meg:
-            instance = role_class(name, params)
-            instance.load()
-            return instance
-        except Exception as e:
-            self.logger.error(f"Hiba a(z) {name} betöltésekor ({engine_type}): {e}")
-            import traceback
-            self.logger.error(traceback.format_exc())
-            return None
-
     def boot_slots(self):
-        for name, params in self.config['slots'].items():
-            slot_instance = self._initialize_slot(name, params)
-            if slot_instance:
-                self.slots[name] = slot_instance
+        """Modellek betöltése központi némítással."""
+        from src.loaders.gguf_loader import GGUFSlot
+        slot_configs = self.config.get("slots", {})
         
-        active = [n for n in self.slots]
-        self.logger.info(f"Rendszer üzemkész. Aktív slotok: {active}")
+        for name, cfg in slot_configs.items():
+            if cfg.get("enabled") and cfg.get("engine") == "gguf":
+                instance = GGUFSlot(name, cfg)
+                
+                # Itt némítjuk el a betöltést központilag
+                with open(os.devnull, "w") as fnull:
+                    with contextlib.redirect_stderr(fnull):
+                        try:
+                            instance.load()
+                        except Exception as e:
+                            self.logger.error(f"Hiba a(z) {name} slot betöltésekor: {e}")
+                
+                self.slots[name] = instance
 
-    def process_pipeline(self, user_input):
-        """A teljes kognitív folyamat: Inger -> Elemzés -> Kontextus -> Válasz."""
-        self.logger.info(f"Új bemenet: '{user_input}'")
+    async def _run_in_thread(self, slot_name, prompt, params):
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(
+            self.executor, 
+            self.slots[slot_name].generate, 
+            prompt, 
+            params
+        )
+
+    async def process_pipeline(self, user_query):
+        start_time = time.time()
+        intent = "general_chat"
+        cleaned_query = user_query
         
-        try:
-            # 1. SZINT: Írnok (Intent Analysis)
-            scribe_res = "N/A"
-            if 'scribe' in self.slots:
-                scribe_res = self.slots['scribe'].run(user_input)
-                self.logger.info(f"[Scribe] Elemzés kész.")
+        if "scribe" in self.slots:
+            scribe_prompt = f"Analyze intent and clean: {user_query}\nFormat: intent|text"
+            out = await self._run_in_thread("scribe", scribe_prompt, {"max_tokens": 64})
+            if "|" in out:
+                parts = out.split("|")
+                intent = parts[0].strip()
+                cleaned_query = parts[1].strip()
 
-            # 2. SZINT: Lakáj (Memory & RAG)
-            context = "Nincs extra kontextus."
-            if 'valet' in self.slots:
-                context = self.slots['valet'].run(scribe_res, user_input)
-                self.logger.info(f"[Valet] Kontextus felépítve.")
+        thought = "..."
+        response = "Hiba történt."
+        
+        if "valet" in self.slots:
+            thought_prompt = f"Internal thoughts about: {cleaned_query}"
+            thought = await self._run_in_thread("valet", thought_prompt, {"max_tokens": 256})
+            
+            response_prompt = f"Thoughts: {thought}\nUser: {cleaned_query}\nKópé:"
+            response = await self._run_in_thread("valet", response_prompt, {"max_tokens": 512})
 
-            # 3. SZINT: A Szuverén (King/Queen) - Ha be van kapcsolva
-            final_response = ""
-            if 'king' in self.slots:
-                final_response = self.slots['king'].run(context, user_input)
-            elif 'queen' in self.slots:
-                final_response = self.slots['queen'].run(context, user_input)
-            else:
-                # Ha csak a kicsik futnak (teszt üzemmód 1 GPU-val)
-                final_response = f"DEBUG: Scribe: {scribe_res} | Valet: {context[:100]}..."
+        return {
+            "identity": self.config['project']['identity'],
+            "intent": intent,
+            "thought": thought,
+            "response": response,
+            "metadata": {"time": round(time.time() - start_time, 3)}
+        }
 
-            return {
-                "scribe": scribe_res,
-                "valet": context,
-                "response": final_response
-            }
-
-        except Exception as e:
-            self.logger.error(f"Pipeline hiba: {e}")
-            return {"error": str(e)}
+    async def check_proactive_intent(self):
+        if "valet" in self.slots:
+            decision = await self._run_in_thread("valet", "Proactive check: Need to speak? [Y/N]", {"max_tokens": 5})
+            if "Y" in decision.upper():
+                message = await self._run_in_thread("valet", "Say something to Grumpy:", {"max_tokens": 128})
+                await self.outbound_queue.put({
+                    "type": "proactive",
+                    "response": message,
+                    "timestamp": time.time()
+                })
 
     def shutdown(self):
-        """VRAM tiszta felszabadítása."""
-        self.logger.info("Rendszer leállítása, VRAM ürítése...")
-        for name, slot in self.slots.items():
+        for slot in self.slots.values():
             slot.unload()
+        self.executor.shutdown()

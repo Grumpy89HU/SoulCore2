@@ -1,34 +1,29 @@
-from abc import ABC, abstractmethod
 import logging
 
-class BaseSlot(ABC):
-    def __init__(self, name, config):
-        self.name = name
+class BaseSlot:
+    def __init__(self, slot_name, config):
+        self.name = slot_name
         self.config = config
-        self.model = None
-        self.tokenizer = None
-        self.logger = logging.getLogger(f"Slot-{name}")
         self.is_loaded = False
+        self.model = None
+        self.logger = logging.getLogger(f"Slot-{slot_name}")
 
-    @abstractmethod
     def load(self):
-        """A modell betöltése a VRAM-ba (EXL2 vagy más engine)."""
-        pass
+        """Modell betöltése a memóriába (implementálandó)"""
+        raise NotImplementedError
 
-    @abstractmethod
     def unload(self):
-        """VRAM felszabadítása."""
-        pass
+        """Memória felszabadítása"""
+        raise NotImplementedError
 
-    @abstractmethod
     def generate(self, prompt, params=None):
-        """Válasz generálása a kapott prompt alapján."""
-        pass
+        """Válasz generálása (implementálandó)"""
+        raise NotImplementedError
 
-    def get_status(self):
+    def status(self):
         return {
             "name": self.name,
-            "loaded": self.is_loaded,
-            "vram_limit": self.config.get("max_vram_mb", "N/A"),
-            "device": self.config.get("gpu_id", 0)
+            "role": self.config.get("role"),
+            "engine": self.config.get("engine"),
+            "is_loaded": self.is_loaded
         }
