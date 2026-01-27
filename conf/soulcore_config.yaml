@@ -1,0 +1,74 @@
+# SoulCore 2.0 - Szuverén Entitás Konfiguráció
+project:
+  name: "SoulCore"
+  version: "2.0"
+  identity: "Kópé"
+
+api:
+  host: "0.0.0.0"       # 0.0.0.0 = minden hálózati kártyán figyel
+  port: 8000            # Itt tudod módosítani a portot
+  cors_origins: ["*"]   # Biztonsági beállítás a frontendekhez
+  timeout: 60           # Válaszadási időkorlát
+
+hardware:
+  gpu_count: 1                # Ha megjön a táp, írd át 2-re
+  total_vram_limit_mb: 16384  # 16GB VRAM (egy 5060 Ti)
+  cuda_device: "cuda:0"
+
+storage:
+  model_root: "./models"
+  vault_root: "./vault"
+  db_limit_gb: 1500           # A bűvös 1.5 TB korlát
+  backup_enabled: true
+
+# Slot definíciók - Itt dől el, ki hova kerül
+slots:
+  scribe:
+    enabled: true
+    role: "Gatekeeper"
+    engine: "gguf"
+    model_name: "google_gemma-3-1b-it-GGUF"
+    model_path: "./models/google_gemma-3-1b-it-GGUF"
+    filename: "google_gemma-3-1b-it-Q4_K_M.gguf"
+    repo_id: "bartowski/google_gemma-3-1b-it-GGUF" # EXL2 formátum!
+    gpu_id: 0
+    max_vram_mb: 2000
+    temperature: 0.1
+
+  valet:
+    enabled: true
+    role: "Logistics"
+    engine: "gguf"
+    model_name: "google_gemma-3-4b-it-GGUF"
+    model_path: "./models/google_gemma-3-4b-it-GGUF"
+    filename: "google_gemma-3-4b-it-Q4_K_M.gguf"
+    repo_id: "bartowski/google_gemma-3-4b-it-GGUF" # EXL2 formátum!
+    gpu_id: 0
+    max_vram_mb: 6000
+    temperature: 0.3
+
+  # A Queen és King egyelőre pihen a második kártyáig
+  queen:
+    enabled: false
+    role: "Reasoning"
+    engine: "exllamav2"
+    model_name: "qwen-3-14b-thinking-exl2"
+    gpu_id: 1
+    max_vram_mb: 12000
+
+  king:
+    enabled: false
+    role: "Sovereign"
+    engine: "exllamav2"
+    model_name: "gemma-3-12b-exl2"
+    gpu_id: 1
+    max_vram_mb: 10000
+
+databases:
+  vector_vault:
+    engine: "qdrant"
+    host: "localhost"
+    port: 6333
+  graph_vault:
+    engine: "networkx"
+    file_path: "./vault/db/social_graph.json"

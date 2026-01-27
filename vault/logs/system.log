@@ -1,0 +1,168 @@
+2026-01-26 16:08:31,105 [INFO] Kernel: --- SoulCore v2.0 Boot Sequence ---
+2026-01-26 16:08:31,130 [INFO] Kernel: --- SoulCore v2.0 Boot Sequence ---
+2026-01-26 16:08:31,130 [INFO] Kernel: Slot inicializálása: scribe (Engine: exllamav2)
+2026-01-26 16:08:31,130 [INFO] Slot-scribe: EXL2 Modell betöltése: gemma-3-1b-exl2...
+2026-01-26 16:08:31,130 [ERROR] Kernel: Hiba a(z) scribe betöltésekor: Can't find ./models/gemma-3-1b-exl2
+2026-01-26 16:08:31,130 [INFO] Kernel: Slot inicializálása: valet (Engine: exllamav2)
+2026-01-26 16:08:31,130 [INFO] Slot-valet: EXL2 Modell betöltése: gemma-3-4b-exl2...
+2026-01-26 16:08:31,130 [ERROR] Kernel: Hiba a(z) valet betöltésekor: Can't find ./models/gemma-3-4b-exl2
+2026-01-26 16:08:31,130 [INFO] Kernel: Rendszer üzemkész. Aktív slotok: []
+2026-01-26 16:11:32,559 [INFO] Kernel: Rendszer leállítása, VRAM ürítése...
+2026-01-26 16:25:00,300 [INFO] Kernel: --- SoulCore v2.0 Boot Sequence ---
+2026-01-26 16:25:00,313 [INFO] Kernel: --- SoulCore v2.0 Boot Sequence ---
+2026-01-26 16:25:00,314 [INFO] Kernel: Slot inicializálása: scribe (Engine: exllamav2)
+2026-01-26 16:25:00,314 [ERROR] Kernel: Hiba a(z) scribe betöltésekor: Can't instantiate abstract class Scribe without an implementation for abstract methods 'generate', 'unload'
+2026-01-26 16:25:00,314 [INFO] Kernel: Slot inicializálása: valet (Engine: exllamav2)
+2026-01-26 16:25:00,314 [ERROR] Kernel: Hiba a(z) valet betöltésekor: Can't instantiate abstract class Valet without an implementation for abstract methods 'generate', 'unload'
+2026-01-26 16:25:00,314 [INFO] Kernel: Rendszer üzemkész. Aktív slotok: []
+2026-01-26 16:27:08,283 [INFO] Kernel: Rendszer leállítása, VRAM ürítése...
+2026-01-26 16:27:12,636 [INFO] Kernel: --- SoulCore v2.0 Boot Sequence ---
+2026-01-26 16:27:12,650 [INFO] Kernel: --- SoulCore v2.0 Boot Sequence ---
+2026-01-26 16:27:12,650 [INFO] Kernel: Slot inicializálása: scribe (Engine: exllamav2)
+2026-01-26 16:27:12,650 [ERROR] Kernel: Hiba a(z) scribe betöltésekor: Can't instantiate abstract class Scribe without an implementation for abstract methods 'generate', 'unload'
+2026-01-26 16:27:12,650 [INFO] Kernel: Slot inicializálása: valet (Engine: exllamav2)
+2026-01-26 16:27:12,650 [ERROR] Kernel: Hiba a(z) valet betöltésekor: Can't instantiate abstract class Valet without an implementation for abstract methods 'generate', 'unload'
+2026-01-26 16:27:12,650 [INFO] Kernel: Rendszer üzemkész. Aktív slotok: []
+2026-01-26 16:29:19,537 [INFO] Kernel: Rendszer leállítása, VRAM ürítése...
+2026-01-26 16:29:22,929 [INFO] Kernel: --- SoulCore v2.0 Boot Sequence ---
+2026-01-26 16:29:22,942 [INFO] Kernel: --- SoulCore v2.0 Boot Sequence ---
+2026-01-26 16:29:22,943 [INFO] Kernel: Slot inicializálása: scribe (Engine: exllamav2)
+2026-01-26 16:29:22,943 [ERROR] Kernel: Hiba a(z) scribe betöltésekor: Can't instantiate abstract class Scribe without an implementation for abstract methods 'generate', 'unload'
+2026-01-26 16:29:22,943 [INFO] Kernel: Slot inicializálása: valet (Engine: exllamav2)
+2026-01-26 16:29:22,943 [ERROR] Kernel: Hiba a(z) valet betöltésekor: Can't instantiate abstract class Valet without an implementation for abstract methods 'generate', 'unload'
+2026-01-26 16:29:22,943 [INFO] Kernel: Rendszer üzemkész. Aktív slotok: []
+2026-01-26 16:32:06,593 [INFO] Kernel: Rendszer leállítása, VRAM ürítése...
+2026-01-26 16:32:10,099 [INFO] Kernel: --- SoulCore v2.0 Boot Sequence ---
+2026-01-26 16:32:10,113 [INFO] Kernel: --- SoulCore v2.0 Boot Sequence ---
+2026-01-26 16:32:10,113 [INFO] Kernel: Slot inicializálása: scribe (Engine: exllamav2)
+2026-01-26 16:32:10,113 [ERROR] Kernel: Hiba a(z) scribe betöltésekor: Can't instantiate abstract class Scribe without an implementation for abstract methods 'generate', 'unload'
+2026-01-26 16:32:10,113 [INFO] Kernel: Slot inicializálása: valet (Engine: exllamav2)
+2026-01-26 16:32:10,113 [ERROR] Kernel: Hiba a(z) valet betöltésekor: Can't instantiate abstract class Valet without an implementation for abstract methods 'generate', 'unload'
+2026-01-26 16:32:10,113 [INFO] Kernel: Rendszer üzemkész. Aktív slotok: []
+2026-01-26 16:32:11,921 [INFO] Kernel: Rendszer leállítása, VRAM ürítése...
+2026-01-26 16:33:14,286 [INFO] Kernel: --- SoulCore v2.0 Boot Sequence ---
+2026-01-26 16:33:14,299 [INFO] Kernel: --- SoulCore v2.0 Boot Sequence ---
+2026-01-26 16:33:14,299 [INFO] Kernel: Slot inicializálása: scribe (Engine: exllamav2)
+2026-01-26 16:33:14,299 [INFO] Slot-scribe: Modell nem található. Letöltés indítása: Bartowski/gemma-3-1b-it-exl2 -> ./models/gemma-3-1b-it-exl2
+2026-01-26 16:33:14,481 [ERROR] Slot-scribe: Hiba a betöltés során: 404 Client Error. (Request ID: Root=1-6977893a-146481ff7233970247e3d5fc;0de183fa-1ec8-4de7-a510-0626bf9d230d)
+
+Repository Not Found for url: https://huggingface.co/api/models/Bartowski/gemma-3-1b-it-exl2/revision/main.
+Please make sure you specified the correct `repo_id` and `repo_type`.
+If you are trying to access a private or gated repo, make sure you are authenticated. For more details, see https://huggingface.co/docs/huggingface_hub/authentication
+2026-01-26 16:33:14,481 [ERROR] Kernel: Hiba a(z) scribe betöltésekor: 404 Client Error. (Request ID: Root=1-6977893a-146481ff7233970247e3d5fc;0de183fa-1ec8-4de7-a510-0626bf9d230d)
+
+Repository Not Found for url: https://huggingface.co/api/models/Bartowski/gemma-3-1b-it-exl2/revision/main.
+Please make sure you specified the correct `repo_id` and `repo_type`.
+If you are trying to access a private or gated repo, make sure you are authenticated. For more details, see https://huggingface.co/docs/huggingface_hub/authentication
+2026-01-26 16:33:14,481 [INFO] Kernel: Slot inicializálása: valet (Engine: exllamav2)
+2026-01-26 16:33:14,481 [INFO] Slot-valet: Modell nem található. Letöltés indítása: Bartowski/gemma-3-4b-it-exl2 -> ./models/gemma-3-4b-it-exl2
+2026-01-26 16:33:14,613 [ERROR] Slot-valet: Hiba a betöltés során: 404 Client Error. (Request ID: Root=1-6977893a-25ee8ccf1d1876bd7e9f5aa6;a3e06ad2-5eb6-4597-aabb-4582c946d4af)
+
+Repository Not Found for url: https://huggingface.co/api/models/Bartowski/gemma-3-4b-it-exl2/revision/main.
+Please make sure you specified the correct `repo_id` and `repo_type`.
+If you are trying to access a private or gated repo, make sure you are authenticated. For more details, see https://huggingface.co/docs/huggingface_hub/authentication
+2026-01-26 16:33:14,613 [ERROR] Kernel: Hiba a(z) valet betöltésekor: 404 Client Error. (Request ID: Root=1-6977893a-25ee8ccf1d1876bd7e9f5aa6;a3e06ad2-5eb6-4597-aabb-4582c946d4af)
+
+Repository Not Found for url: https://huggingface.co/api/models/Bartowski/gemma-3-4b-it-exl2/revision/main.
+Please make sure you specified the correct `repo_id` and `repo_type`.
+If you are trying to access a private or gated repo, make sure you are authenticated. For more details, see https://huggingface.co/docs/huggingface_hub/authentication
+2026-01-26 16:33:14,613 [INFO] Kernel: Rendszer üzemkész. Aktív slotok: []
+2026-01-26 16:34:20,810 [INFO] Kernel: Rendszer leállítása, VRAM ürítése...
+2026-01-27 09:04:28,111 [INFO] Kernel: --- SoulCore v2.0 Boot Sequence ---
+2026-01-27 09:04:28,137 [INFO] Kernel: --- SoulCore v2.0 Boot Sequence ---
+2026-01-27 09:04:28,137 [INFO] Kernel: Slot inicializálása: scribe | Engine: gguf | Role: Scribe
+2026-01-27 09:04:28,137 [INFO] Slot-scribe: GGUF letöltése: bartowski/google_gemma-3-1b-it-GGUF...
+2026-01-27 09:04:28,138 [ERROR] Kernel: Hiba a(z) scribe betöltésekor (gguf): 'NoneType' object has no attribute 'split'
+2026-01-27 09:04:28,139 [ERROR] Kernel: Traceback (most recent call last):
+  File "/mnt/raid/soulcore/SoulCore2.0/src/orchestrator.py", line 90, in _initialize_slot
+    instance.load()
+  File "/mnt/raid/soulcore/SoulCore2.0/src/loaders/gguf_loader.py", line 25, in load
+    self._ensure_model_exists()
+  File "/mnt/raid/soulcore/SoulCore2.0/src/loaders/gguf_loader.py", line 18, in _ensure_model_exists
+    hf_hub_download(
+  File "/root/micromamba/envs/soulcore/lib/python3.12/site-packages/huggingface_hub/utils/_validators.py", line 89, in _inner_fn
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/root/micromamba/envs/soulcore/lib/python3.12/site-packages/huggingface_hub/file_download.py", line 1003, in hf_hub_download
+    return _hf_hub_download_to_local_dir(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/micromamba/envs/soulcore/lib/python3.12/site-packages/huggingface_hub/file_download.py", line 1288, in _hf_hub_download_to_local_dir
+    paths = get_local_download_paths(local_dir=local_dir, filename=filename)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/micromamba/envs/soulcore/lib/python3.12/site-packages/huggingface_hub/_local_folder.py", line 210, in get_local_download_paths
+    sanitized_filename = os.path.join(*filename.split("/"))
+                                       ^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'split'
+
+2026-01-27 09:04:28,139 [INFO] Kernel: Slot inicializálása: valet | Engine: gguf | Role: Valet
+2026-01-27 09:04:28,139 [INFO] Slot-valet: GGUF letöltése: bartowski/google_gemma-3-4b-it-GGUF...
+2026-01-27 09:04:28,139 [ERROR] Kernel: Hiba a(z) valet betöltésekor (gguf): 'NoneType' object has no attribute 'split'
+2026-01-27 09:04:28,140 [ERROR] Kernel: Traceback (most recent call last):
+  File "/mnt/raid/soulcore/SoulCore2.0/src/orchestrator.py", line 90, in _initialize_slot
+    instance.load()
+  File "/mnt/raid/soulcore/SoulCore2.0/src/loaders/gguf_loader.py", line 25, in load
+    self._ensure_model_exists()
+  File "/mnt/raid/soulcore/SoulCore2.0/src/loaders/gguf_loader.py", line 18, in _ensure_model_exists
+    hf_hub_download(
+  File "/root/micromamba/envs/soulcore/lib/python3.12/site-packages/huggingface_hub/utils/_validators.py", line 89, in _inner_fn
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/root/micromamba/envs/soulcore/lib/python3.12/site-packages/huggingface_hub/file_download.py", line 1003, in hf_hub_download
+    return _hf_hub_download_to_local_dir(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/micromamba/envs/soulcore/lib/python3.12/site-packages/huggingface_hub/file_download.py", line 1288, in _hf_hub_download_to_local_dir
+    paths = get_local_download_paths(local_dir=local_dir, filename=filename)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/micromamba/envs/soulcore/lib/python3.12/site-packages/huggingface_hub/_local_folder.py", line 210, in get_local_download_paths
+    sanitized_filename = os.path.join(*filename.split("/"))
+                                       ^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'split'
+
+2026-01-27 09:04:28,140 [INFO] Kernel: Rendszer üzemkész. Aktív slotok: []
+2026-01-27 09:05:16,961 [INFO] Kernel: Rendszer leállítása, VRAM ürítése...
+2026-01-27 09:17:44,564 [INFO] Kernel: --- SoulCore v2.0 Boot Sequence ---
+2026-01-27 09:17:44,579 [INFO] Kernel: --- SoulCore v2.0 Boot Sequence ---
+2026-01-27 09:17:44,579 [INFO] Kernel: Slot inicializálása: scribe | Engine: gguf | Role: Scribe
+2026-01-27 09:17:44,579 [ERROR] Kernel: Hiba a(z) scribe betöltésekor (gguf): join() argument must be str, bytes, or os.PathLike object, not 'NoneType'
+2026-01-27 09:17:44,579 [ERROR] Kernel: Traceback (most recent call last):
+  File "/mnt/raid/soulcore/SoulCore2.0/src/orchestrator.py", line 89, in _initialize_slot
+    instance = role_class(name, params)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/raid/soulcore/SoulCore2.0/src/loaders/gguf_loader.py", line 14, in __init__
+    self.full_model_path = os.path.join(self.model_dir, self.filename)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen posixpath>", line 90, in join
+  File "<frozen genericpath>", line 164, in _check_arg_types
+TypeError: join() argument must be str, bytes, or os.PathLike object, not 'NoneType'
+
+2026-01-27 09:17:44,579 [INFO] Kernel: Slot inicializálása: valet | Engine: gguf | Role: Valet
+2026-01-27 09:17:44,579 [ERROR] Kernel: Hiba a(z) valet betöltésekor (gguf): join() argument must be str, bytes, or os.PathLike object, not 'NoneType'
+2026-01-27 09:17:44,580 [ERROR] Kernel: Traceback (most recent call last):
+  File "/mnt/raid/soulcore/SoulCore2.0/src/orchestrator.py", line 89, in _initialize_slot
+    instance = role_class(name, params)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/raid/soulcore/SoulCore2.0/src/loaders/gguf_loader.py", line 14, in __init__
+    self.full_model_path = os.path.join(self.model_dir, self.filename)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen posixpath>", line 90, in join
+  File "<frozen genericpath>", line 164, in _check_arg_types
+TypeError: join() argument must be str, bytes, or os.PathLike object, not 'NoneType'
+
+2026-01-27 09:17:44,580 [INFO] Kernel: Rendszer üzemkész. Aktív slotok: []
+2026-01-27 09:20:14,859 [INFO] Kernel: Rendszer leállítása, VRAM ürítése...
+2026-01-27 09:20:18,179 [INFO] Kernel: --- SoulCore v2.0 Boot Sequence ---
+2026-01-27 09:20:18,194 [INFO] Kernel: --- SoulCore v2.0 Boot Sequence ---
+2026-01-27 09:20:18,194 [INFO] Kernel: Slot inicializálása: scribe | Engine: gguf | Role: Scribe
+2026-01-27 09:20:18,194 [INFO] Slot-scribe: GGUF fájl hiányzik. Letöltés: bartowski/google_gemma-3-1b-it-GGUF -> google_gemma-3-1b-it-Q4_K_M.gguf
+2026-01-27 09:20:19,352 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/bartowski/google_gemma-3-1b-it-GGUF/resolve/main/google_gemma-3-1b-it-Q4_K_M.gguf "HTTP/1.1 302 Found"
+2026-01-27 09:20:19,526 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/bartowski/google_gemma-3-1b-it-GGUF/xet-read-token/116f76234503685a98f572982177b11d44ec8ff1 "HTTP/1.1 200 OK"
+2026-01-27 09:20:34,938 [INFO] Slot-scribe: GGUF modell betöltése (Llama-cpp): google_gemma-3-1b-it-Q4_K_M.gguf
+2026-01-27 09:20:35,369 [INFO] Kernel: Slot inicializálása: valet | Engine: gguf | Role: Valet
+2026-01-27 09:20:35,369 [INFO] Slot-valet: GGUF fájl hiányzik. Letöltés: bartowski/google_gemma-3-4b-it-GGUF -> google_gemma-3-4b-it-Q4_K_M.gguf
+2026-01-27 09:20:35,585 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/bartowski/google_gemma-3-4b-it-GGUF/resolve/main/google_gemma-3-4b-it-Q4_K_M.gguf "HTTP/1.1 302 Found"
+2026-01-27 09:20:35,715 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/bartowski/google_gemma-3-4b-it-GGUF/xet-read-token/71506238f970075ca85125cd749c28b1b0eee84e "HTTP/1.1 200 OK"
+2026-01-27 09:21:19,837 [INFO] Slot-valet: GGUF modell betöltése (Llama-cpp): google_gemma-3-4b-it-Q4_K_M.gguf
+2026-01-27 09:21:20,290 [INFO] Kernel: Rendszer üzemkész. Aktív slotok: ['scribe', 'valet']
+2026-01-27 12:01:16,531 [INFO] Kernel: Rendszer leállítása, VRAM ürítése...
+2026-01-27 12:01:16,562 [INFO] Slot-scribe: Slot scribe felszabadítva.
+2026-01-27 12:01:16,606 [INFO] Slot-valet: Slot valet felszabadítva.

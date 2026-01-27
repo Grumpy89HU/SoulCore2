@@ -1,0 +1,24 @@
+# Alapvető AI motorok
+exllamav2
+# vllm  # Opcionális, ha később átváltanánk
+
+# Backend és aszinkronitás
+fastapi
+uvicorn[standard]
+pyyaml
+python-dotenv
+
+# Adatbázis és tárolás
+qdrant-client
+redis
+networkx
+
+# Adatkezelés és Logika
+numpy
+pydantic
+
+# Eszközök
+colorama  # Hogy a logok szépek és átláthatóak legyenek a terminálban
+
+#Egyéb
+huggingface_hub
