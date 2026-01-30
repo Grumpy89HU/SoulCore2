@@ -3,6 +3,12 @@ project:
   name: "SoulCore"
   version: "2.0"
   identity: "Kópé"
+  user_lang: "hu"      # A felhasználó nyelve
+  internal_lang: "en"  # A rendszer belső nyelve (logika, RAG)
+ 
+active_session:
+  user_id: "Grumpy"
+  chat_id: "dev_room_001"
 
 api:
   host: "0.0.0.0"       # 0.0.0.0 = minden hálózati kártyán figyel
@@ -23,29 +29,34 @@ storage:
 
 # Slot definíciók - Itt dől el, ki hova kerül
 slots:
+  translator:
+    enabled: true
+    model_name: "Translategemma-4b-it"
+    model_path: "./models"
+    filename: "translategemma-4b-it-Q4_K_M.gguf"
+    type: "gguf"
+ 
   scribe:
     enabled: true
     role: "Gatekeeper"
     engine: "gguf"
-    model_name: "google_gemma-3-1b-it-GGUF"
-    model_path: "./models/google_gemma-3-1b-it-GGUF"
-    filename: "google_gemma-3-1b-it-Q4_K_M.gguf"
-    repo_id: "bartowski/google_gemma-3-1b-it-GGUF" # EXL2 formátum!
+    model_name: "Llama-3.2-3B-Instruct"
+    model_path: "./models"
+    filename: "Llama-3.2-3B-Instruct-Q3_K_XL.gguf"
     gpu_id: 0
-    max_vram_mb: 2000
+    max_vram_mb: 3000
     temperature: 0.1
 
   valet:
     enabled: true
     role: "Logistics"
     engine: "gguf"
-    model_name: "google_gemma-3-4b-it-GGUF"
-    model_path: "./models/google_gemma-3-4b-it-GGUF"
-    filename: "google_gemma-3-4b-it-Q4_K_M.gguf"
-    repo_id: "bartowski/google_gemma-3-4b-it-GGUF" # EXL2 formátum!
+    model_name: "Llama-3.2-3B-Instruct"
+    model_path: "./models"
+    filename: "Llama-3.2-3B-Instruct-Q3_K_XL.gguf"
     gpu_id: 0
-    max_vram_mb: 6000
-    temperature: 0.3
+    max_vram_mb: 5000
+    temperature: 0.4
 
   # A Queen és King egyelőre pihen a második kártyáig
   queen:
@@ -57,18 +68,20 @@ slots:
     max_vram_mb: 12000
 
   king:
-    enabled: false
+    enabled: true # Egyelőre False, amíg nincs meg a második kártya/táp
     role: "Sovereign"
-    engine: "exllamav2"
-    model_name: "gemma-3-12b-exl2"
-    gpu_id: 1
-    max_vram_mb: 10000
+    engine: "gguf"
+    model_name: "Gemma3 4B"
+    model_path: "./models"
+    filename: "google_gemma-3-4b-it-Q4_K_M.gguf"
+    gpu_id: 0 # Ha bekapcsolod, vigyázz a VRAM-ra!
+    max_vram_mb: 14000
+    temperature: 0.7
 
 databases:
   vector_vault:
     engine: "qdrant"
-    host: "localhost"
-    port: 6333
+    path: "vault/db/soul_vectors" # Átállítva lokálisra a múltkori hiba miatt
   graph_vault:
     engine: "networkx"
     file_path: "./vault/db/social_graph.json"
