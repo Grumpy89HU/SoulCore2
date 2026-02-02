@@ -1,24 +1,30 @@
-# Alapvető AI motorok
+# --- Alapvető AI motorok ---
 exllamav2
-# vllm  # Opcionális, ha később átváltanánk
+# A GGUF slotokhoz (Llama-cpp-python) - Ez kritikus a King/Scribe/Valet számára!
+llama-cpp-python
 
-# Backend és aszinkronitás
+# --- Backend és API ---
 fastapi
 uvicorn[standard]
 pyyaml
 python-dotenv
+pydantic
 
-# Adatbázis és tárolás
+# --- RAG és Embedding (Ez kell az automata letöltéshez) ---
+sentence-transformers
+torch
+transformers
+accelerate
+protobuf          # A Gemma tokenizálóhoz kötelező
+
+# --- Adatbázis és Tárolás ---
 qdrant-client
 redis
 networkx
-
-# Adatkezelés és Logika
 numpy
-pydantic
 
-# Eszközök
-colorama  # Hogy a logok szépek és átláthatóak legyenek a terminálban
-
-#Egyéb
+# --- Monitorozás és Eszközök ---
+colorama
 huggingface_hub
+psutil            # A monitor.py-hoz, hogy lásd a VRAM/CPU használatot
+asyncio           # Az Orchestrator aszinkronitásához

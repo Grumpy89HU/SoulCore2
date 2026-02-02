@@ -5,6 +5,7 @@ from fastapi.responses import JSONResponse, StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from src.orchestrator import Orchestrator
+from src.utils.webserver import integrate_web_interface
 
 # --- Monitorozás inicializálása ---
 try:
@@ -22,7 +23,10 @@ gpu_telemetry = {}
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """A rendszer életciklusának kezelése (Startup & Shutdown)."""
+    """
+    A rendszer életciklusának kezelése (Startup & Shutdown).
+    Az Uvicorn indításakor ez a szekvencia fut le először.
+    """
     global core
     print("\n" + "="*60)
     print("    SOULCORE 2.0 - KERNEL AKTIVÁLÁSA")
@@ -32,29 +36,27 @@ async def lifespan(app: FastAPI):
         # 1. Orchestrator példányosítása
         core = Orchestrator()
         
-        # 2. Modellek betöltése
+        # 2. Modellek (Slotok) betöltése
         print("Slotok ébresztése...")
         core.boot_slots()
         
-        # 3. Heartbeat elindítása
-        heartbeat_task = asyncio.create_task(heartbeat_loop())
+        # 3. Heartbeat (GPU monitor és önreflexió) elindítása
+        asyncio.create_task(heartbeat_loop())
         
-        print(f"\nSoulCore API online: http://{core.config['api']['host']}:{core.config['api']['port']}")
+        print(f"\n✅ SoulCore Kernel Online.")
         
     except Exception as e:
-        print(f"KRITIKUS HIBA AZ INDÍTÁSKOR: {e}")
+        print(f"❌ KRITIKUS HIBA AZ INDÍTÁSKOR: {e}")
         import traceback
         traceback.print_exc()
 
     yield
 
-    # --- SHUTDOWN ---
+    # --- SHUTDOWN SZEKVENCIA ---
     print("\n" + "="*60)
     print("    LEÁLLÍTÁSI SZEKVENCIA - VRAM FELSZABADÍTÁSA")
     print("="*60)
     
-    if 'heartbeat_task' in locals():
-        heartbeat_task.cancel()
     if core:
         core.shutdown()
     if HAS_GPU_MONITOR:
@@ -63,6 +65,7 @@ async def lifespan(app: FastAPI):
     print("A rendszerek biztonságosan leálltak. Viszlát, Grumpy!")
 
 async def get_telemetry():
+    """NVML alapú hardver adatok lekérése."""
     global gpu_telemetry
     if not HAS_GPU_MONITOR:
         return [{"id": 0, "temp": "N/A", "vram_used": "N/A", "load": "N/A"}]
@@ -89,7 +92,8 @@ async def get_telemetry():
     return stats
 
 async def heartbeat_loop():
-    global consecutive_errors, gpu_telemetry
+    """Folyamatos ellenőrzés és proaktív funkciók."""
+    global consecutive_errors
     reflection_counter = 0
     REFLECTION_LIMIT = 30 
 
@@ -99,13 +103,13 @@ async def heartbeat_loop():
             stats = await get_telemetry()
             
             if core:
-                # Slot ellenőrzés
+                # Slotok életben tartása
                 for name, slot in core.slots.items():
                     if not slot.is_loaded:
                         logging.warning(f"Slot elakadás: {name}. Újraélesztés...")
                         slot.load()
 
-                # Önreflexió
+                # Önreflexiós ciklus
                 reflection_counter += 1
                 if reflection_counter >= REFLECTION_LIMIT:
                     temp_str = stats[0]['temp'] if stats else "N/A"
@@ -116,10 +120,12 @@ async def heartbeat_loop():
                 consecutive_errors = 0
         except Exception as e:
             consecutive_errors += 1
+            logging.error(f"Heartbeat hiba: {e}")
             if consecutive_errors >= ERROR_THRESHOLD:
+                print("KRITIKUS HIBA - Rendszer újraindítása...")
                 os.execv(sys.executable, [sys.executable] + sys.argv)
 
-# FastAPI definíció
+# --- FastAPI definíció ---
 app = FastAPI(title="SoulCore 2.0 Szuverén API", lifespan=lifespan)
 
 app.add_middleware(
@@ -129,7 +135,7 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
-# --- ÚTVONALAK ---
+# --- ALAP ÚTVONALAK ---
 
 @app.get("/status")
 async def status():
@@ -171,7 +177,7 @@ async def restart_system():
 # --- INDÍTÁS ---
 
 if __name__ == "__main__":
-    # Beolvassuk a konfigot a port és host miatt
+    # Konfiguráció beolvasása a hálózati adatokhoz
     conf_path = "conf/soulcore_config.yaml"
     with open(conf_path, 'r', encoding='utf-8') as f:
         config = yaml.safe_load(f)
@@ -179,4 +185,9 @@ if __name__ == "__main__":
     host = config['api'].get('host', '0.0.0.0')
     port = config['api'].get('port', 8000)
     
-    uvicorn.run(app, host=host, port=port, reload=False)
+    # 1. A Web Interface beintegrálása a modulból
+    integrate_web_interface(app, core)
+
+    # 2. Uvicorn indítása - ez aktiválja a lifespan-t és minden mást
+    print(f"\n🏰 SoulCore 2.0 Várkapu nyitása: http://{host}:{port}")
+    uvicorn.run(app, host=host, port=port, reload=False, log_level="info")

@@ -85,3 +85,37 @@ databases:
   graph_vault:
     engine: "networkx"
     file_path: "./vault/db/social_graph.json"
+
+rag_system:
+  enabled: true
+  
+  # --- Embedding (Gemma-300M) ---
+  embedding:
+    local_path: "/mnt/raid/soulcore/SoulCore2.0/models/ragsystem/embeddinggemma"
+    vector_dimension: 768          # A 300M modell kimeneti dimenziója
+    max_input_tokens: 8192          # Ennyit tud egyszerre vektorizálni (nem kell 128k-ig elmenni itt)
+    pooling_method: "mean"          # A Gemma embeddingnél ez az ajánlott
+    instruction_type:
+      query: "query: "              # Kérésnél ezt fűzi elé a jobb találatért
+      document: "passage: "         # Indexelésnél ezt használja
+
+  # --- Kontextus és Darabolás (A 128k ereje) ---
+  context:
+    window_size: 131072             # 128k kontextus támogatás a King/Queen számára
+    chunk_size: 4096                # Megemeltük! Mivel 128k a keret, nem kell aprózni.
+    chunk_overlap: 512              # Biztonsági átfedés
+    max_chunks_per_query: 15        # Akár 15-20 nagy blokkot is betehetünk egyszerre
+
+  # --- Reranker (Qwen3-Reranker-4B) ---
+  reranker:
+    enabled: false
+    local_path: "/mnt/raid/soulcore/SoulCore2.0/models/reranker/qwen3vlreranker2B"
+    top_n: 5                        # A 128k miatt több releváns infót is átengedhetünk
+    relevance_threshold: 0.65
+    
+  # --- Keresési Motor (Qdrant beállítások) ---
+  retrieval:
+    engine: "qdrant"
+    distance_metric: "cosine"       # Gemma embeddinghez a Koszinusz-hasonlóság az ideális
+    hybrid_search: true             # Szemantikus (vektor) + Szöveges (BM25)
+    search_limit: 25                # Ennyit kérünk le az adatbázisból reranking előtt

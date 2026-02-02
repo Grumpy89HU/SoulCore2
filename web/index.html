@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <title>SoulCore 2.0 - Szuverén Terminál</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #0d1117; color: #c9d1d9; font-family: 'Segoe UI', sans-serif; }
+        .terminal-bg { background: rgba(22, 27, 34, 0.95); border: 1px solid #30363d; }
+        .status-dot { height: 8px; width: 8px; border-radius: 50%; display: inline-block; }
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-thumb { background: #30363d; border-radius: 10px; }
+    </style>
+</head>
+<body class="h-screen overflow-hidden flex flex-col">
+
+    <nav class="p-3 border-b border-gray-800 flex justify-between items-center bg-[#161b22]">
+        <div class="flex items-center gap-4">
+            <span class="font-bold tracking-tighter text-blue-500">SOULCORE 2.0</span>
+            <div id="gpu-stats" class="text-[10px] text-gray-500 font-mono">GPU: --°C | VRAM: -- MB</div>
+        </div>
+        <div class="flex items-center gap-2">
+            <span id="status-text" class="text-xs uppercase">Rendszer ébredése...</span>
+            <span id="status-dot" class="status-dot bg-yellow-500"></span>
+        </div>
+    </nav>
+
+    <main id="chat-box" class="flex-grow overflow-y-auto p-6 space-y-4">
+        <div class="text-center text-gray-600 my-10 font-mono text-sm">
+            --- Rendszer inicializálva. Várom az utasítást, Grumpy. ---
+        </div>
+    </main>
+
+    <footer class="p-6 bg-[#0d1117]">
+        <div class="max-w-4xl mx-auto relative">
+            <input type="text" id="user-input" 
+                class="w-full bg-[#161b22] border border-gray-700 rounded-xl py-4 px-6 focus:outline-none focus:border-blue-600 transition-all shadow-2xl"
+                placeholder="Küldj üzenetet a SoulCore-nak...">
+            <button onclick="sendMessage()" class="absolute right-4 top-4 text-gray-500 hover:text-blue-500">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                </svg>
+            </button>
+        </div>
+    </footer>
+
+    <script>
+        const chatBox = document.getElementById('chat-box');
+        const userInput = document.getElementById('user-input');
+
+        // Hardver monitor frissítése
+        async function updateStatus() {
+            try {
+                const res = await fetch('/status');
+                const data = await res.json();
+                const gpu = data.hardware[0];
+                document.getElementById('gpu-stats').innerText = `GPU: ${gpu.temp} | LOAD: ${gpu.load} | VRAM: ${gpu.vram_used}`;
+                document.getElementById('status-dot').className = `status-dot bg-green-500`;
+                document.getElementById('status-text').innerText = "Online";
+            } catch (e) {
+                document.getElementById('status-dot').className = `status-dot bg-red-500`;
+                document.getElementById('status-text').innerText = "Offline";
+            }
+        }
+        setInterval(updateStatus, 5000);
+        updateStatus();
+
+        async function sendMessage() {
+            const query = userInput.value.trim();
+            if (!query) return;
+
+            // Saját üzenet
+            chatBox.innerHTML += `<div class="flex justify-end"><div class="bg-blue-700 text-white p-3 rounded-lg max-w-xl shadow-md">${query}</div></div>`;
+            userInput.value = '';
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            try {
+                const res = await fetch('/process', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({query: query})
+                });
+                const data = await res.json();
+
+                // Scribe jelentés és Kópé válasza
+                chatBox.innerHTML += `
+                    <div class="space-y-1">
+                        <div class="text-[10px] text-gray-500 font-mono italic px-2">🧠 ${data.report}</div>
+                        <div class="bg-[#161b22] border border-gray-800 p-4 rounded-lg max-w-2xl shadow-sm">
+                            <span class="text-blue-400 font-bold text-xs uppercase block mb-1">${data.identity}</span>
+                            <div class="text-sm leading-relaxed">${data.response}</div>
+                        </div>
+                    </div>`;
+                chatBox.scrollTop = chatBox.scrollHeight;
+            } catch (e) {
+                chatBox.innerHTML += `<div class="text-red-500 text-xs text-center">Kommunikációs hiba a Kernellel.</div>`;
+            }
+        }
+
+        userInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') sendMessage(); });
+    </script>
+</body>
+</html>
