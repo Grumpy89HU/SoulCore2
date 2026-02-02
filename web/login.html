@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <title>SoulCore 2.0 - Hitelesítés</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #0d1117; color: #c9d1d9; font-family: 'Segoe UI', sans-serif; }
+        .login-card { background: #161b22; border: 1px solid #30363d; box-shadow: 0 0 50px rgba(0,0,0,0.5); }
+        .input-field { background: #0d1117; border: 1px solid #30363d; transition: all 0.3s; }
+        .input-field:focus { border-color: #3182ce; box-shadow: 0 0 10px rgba(49, 130, 206, 0.2); outline: none; }
+        .glitch { animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
+    </style>
+</head>
+<body class="h-screen flex items-center justify-center">
+    <div class="login-card p-10 rounded-2xl w-full max-w-md">
+        <div class="text-center mb-10">
+            <h1 class="text-3xl font-bold tracking-tighter text-blue-500 glitch">SOULCORE 2.0</h1>
+            <p class="text-[10px] text-gray-500 uppercase tracking-widest mt-2">Szuverén Adatkezelési Kapu</p>
+        </div>
+
+        <form id="login-form" class="space-y-6">
+            <div>
+                <label class="text-xs text-gray-500 uppercase font-bold ml-1">Azonosító</label>
+                <input type="text" id="username" required 
+                    class="w-full input-field rounded-lg py-3 px-4 mt-1 text-sm text-gray-200" 
+                    placeholder="Admin neve...">
+            </div>
+            <div>
+                <label class="text-xs text-gray-500 uppercase font-bold ml-1">Kulcsszó</label>
+                <input type="password" id="password" required 
+                    class="w-full input-field rounded-lg py-3 px-4 mt-1 text-sm text-gray-200" 
+                    placeholder="••••••••">
+            </div>
+            
+            <div id="error-msg" class="hidden text-red-500 text-[10px] text-center uppercase font-bold animate-bounce">
+                !!! Hozzáférés megtagadva !!!
+            </div>
+
+            <button type="submit" 
+                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition-all shadow-lg shadow-blue-900/20">
+                BELÉPÉS A RENDSZERBE
+            </button>
+        </form>
+
+        <div class="mt-8 text-center">
+            <p class="text-[9px] text-gray-600 font-mono">ENCRYPTED SESSION: BCRYPT-AES-256</p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('login-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const errorMsg = document.getElementById('error-msg');
+            errorMsg.classList.add('hidden');
+
+            const res = await fetch('/login', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    username: document.getElementById('username').value,
+                    password: document.getElementById('password').value
+                })
+            });
+
+            if (res.ok) {
+                window.location.href = "/";
+            } else {
+                errorMsg.classList.remove('hidden');
+            }
+        };
+    </script>
+</body>
+</html>
