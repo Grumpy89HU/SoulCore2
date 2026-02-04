@@ -1,15 +1,43 @@
 import logging
+import json
+import re
 from datetime import datetime
 from src.loaders.gguf_loader import GGUFSlot
 
 class Scribe(GGUFSlot):
-    """Az Írnok: Logikai szűrő és kulcsszó-generátor."""
+    """Az Írnok: Elemzés, meta-adat kinyerés, RAG kulcsszavak és szintézis."""
+    
+    def __init__(self, name, config):
+        super().__init__(name, config)
+        # Egységesített név: system_prompt
+        self.system_prompt = (
+            "You are the SoulCore Scribe. Analyze input and extract metadata.\n"
+            "Categories: 'task', 'fact', 'chat'.\n"
+            "Format: {\"category\": \"...\", \"keywords\": \"...\", \"day_is\": \"odd/even\", \"summary_en\": \"...\"}"
+        )
+
+    async def analyze(self, user_input_hu):
+        """Általános elemzés az adatbázis számára (JSON kimenet)."""
+        now = datetime.now()
+        timestamp_ctx = f"Aktuális idő: {now.strftime('%A, %Y-%m-%d %H:%M')}"
+        
+        prompt = (
+            f"<|start_header_id|>system<|end_header_id|>\n\n{timestamp_ctx}\n{self.system_prompt}<|eot_id|>"
+            f"<|start_header_id|>user<|end_header_id|>\n\nElemezd: {user_input_hu}<|eot_id|>"
+            f"<|start_header_id|>assistant<|end_header_id|>\n\n{{"
+        )
+        
+        # A generate szinkron hívás a GGUFSlot-ban, nem kell await
+        raw_output = self.generate(prompt, params={"max_tokens": 128, "temperature": 0.1})
+        return self._clean_json("{" + raw_output)
+
     def run_keywords(self, user_input_english):
+        """Kulcsszavak kinyerése a Vault kereséshez."""
         now = datetime.now()
         timestamp_ctx = f"Current Time: {now.strftime('%A, %Y-%m-%d %H:%M')}"
         
         prompt = (
-            f"<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n\n"
+            f"<|start_header_id|>system<|end_header_id|>\n\n"
             f"{timestamp_ctx}\n"
             f"Extract search keywords for the database. If the query is about 'tomorrow', "
             f"calculate the day name and add it to keywords. Respond ONLY with keywords.<|eot_id|>"
@@ -19,7 +47,7 @@ class Scribe(GGUFSlot):
         return self.generate(prompt, params={"max_tokens": 32, "temperature": 0.1})
 
     def run_synthesis(self, user_input_english, vault_data):
-        """Összefésüli a Vault adatait a kérdéssel."""
+        """Összefésüli a Vault adatait a kéréssel logikai ütközésekért."""
         system_now = datetime.now().strftime('%Y-%m-%d, %A')
         prompt = (
             f"<|im_start|>system\n"
@@ -33,28 +61,14 @@ class Scribe(GGUFSlot):
         )
         return self.generate(prompt, params={"max_tokens": 128, "temperature": 0.1})
 
-class Valet(GGUFSlot):
-    """A Lakáj: A RAG folyamat kezelője."""
-    def get_vault_context(self, db_instance, keywords, user_id):
-        # Ez a kulcs: a Lakáj meghívja az adatbázist
-        context = db_instance.query_vault(keywords, user_id=user_id)
-        if not context:
-            return "No specific rules found in vault."
-        return context
-
-class King(GGUFSlot):
-    """A Király: A végső döntéshozó."""
-    def run(self, user_input, situation_report, identity="Kópé"):
-        prompt = (
-            f"<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n\n"
-            f"Identity: {identity}. \n"
-            f"SITUATIONAL REPORT: {situation_report}\n"
-            f"Rule: Follow the Situational Report strictly. Respond in Hungarian.<|eot_id|>"
-            f"<|start_header_id|>user<|end_header_id|>\n\n{user_input}<|eot_id|>"
-            f"<|start_header_id|>assistant<|end_header_id|>\n\n"
-        )
-        return self.generate(prompt, params={
-            "max_tokens": 512, 
-            "temperature": 0.7,
-            "stop": ["<|eot_id|>"]
-        })
+    def _clean_json(self, text):
+        """Kinyeri és validálja a JSON választ."""
+        try:
+            # Megkeressük a legelső { és legutolsó } karaktereket
+            start_idx = text.find('{')
+            end_idx = text.rfind('}') + 1
+            if start_idx != -1 and end_idx != -1:
+                return json.loads(text[start_idx:end_idx])
+        except Exception as e:
+            logging.error(f"Scribe JSON Parse Error: {e}")
+        return {"category": "chat", "keywords": "", "day_is": "unknown", "summary_en": "Failed to parse"}
