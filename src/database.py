@@ -20,7 +20,11 @@ class SoulCoreDatabase:
         
         self._init_sqlite()
         
+<<<<<<< HEAD
         # Kezdeti adatok betöltése, ha üres az adatbázis
+=======
+        # Ha nincs meg a projekt konfig, akkor ez az első indítás
+>>>>>>> d3e372da30590eab253bed78f91e2eca3a01a21e
         if not self.get_config("project"):
             self._seed_initial_data()
         
@@ -28,6 +32,7 @@ class SoulCoreDatabase:
         self.storage_cfg = self.get_config("storage")
 
         # 1. VEKTOROS MOTOR (Qdrant)
+<<<<<<< HEAD
         try:
             print(f"🧬 Szuverén Embedding betöltése: {self.rag_cfg['embedding']['local_path']}")
             self.embedding_model = SentenceTransformer(self.rag_cfg['embedding']['local_path'])
@@ -45,6 +50,19 @@ class SoulCoreDatabase:
             except Exception as e:
                 self.logger.error(f"Reranker hiba: {e}")
 
+=======
+        print(f"🧬 Szuverén Embedding betöltése: {self.rag_cfg['embedding']['local_path']}")
+        self.embedding_model = SentenceTransformer(self.rag_cfg['embedding']['local_path'])
+        self.client = QdrantClient(path=self.vector_path)
+        self._init_vector_collections()
+
+        # 2. RERANKER
+        self.reranker = None
+        if self.rag_cfg['reranker'].get('enabled'):
+            print(f"🔍 Szuverén Reranker aktív.")
+            self.reranker = CrossEncoder(self.rag_cfg['reranker']['local_path'])
+
+>>>>>>> d3e372da30590eab253bed78f91e2eca3a01a21e
         # 3. GRÁF MEMÓRIA
         self.graph_db = self._load_graph()
         print(f"🏛️ SoulCore 2.0: SQL + RAG + Graph élesítve.")
@@ -53,11 +71,16 @@ class SoulCoreDatabase:
         with sqlite3.connect(self.db_path) as conn:
             c = conn.cursor()
             c.execute('CREATE TABLE IF NOT EXISTS system_config (key TEXT PRIMARY KEY, value TEXT)')
+<<<<<<< HEAD
+=======
+            # JAVÍTVA: n_ctx hozzáadva a táblához
+>>>>>>> d3e372da30590eab253bed78f91e2eca3a01a21e
             c.execute('''CREATE TABLE IF NOT EXISTS slots (
                 name TEXT PRIMARY KEY, enabled INTEGER, role TEXT, engine TEXT, 
                 model_name TEXT, filename TEXT, gpu_id INTEGER, max_vram_mb INTEGER, 
                 n_ctx INTEGER, temperature REAL, model_path TEXT)''')
             c.execute('CREATE TABLE IF NOT EXISTS users (user_id TEXT PRIMARY KEY, username TEXT, role TEXT)')
+<<<<<<< HEAD
             
             c.execute('''CREATE TABLE IF NOT EXISTS chats (
                 chat_id TEXT PRIMARY KEY, user_id TEXT, title TEXT, 
@@ -72,6 +95,16 @@ class SoulCoreDatabase:
             conn.commit()
 
     # --- KONFIGURÁCIÓ KEZELÉS ---
+=======
+            c.execute('''CREATE TABLE IF NOT EXISTS chats (
+                chat_id TEXT PRIMARY KEY, user_id TEXT, title TEXT, 
+                created_at TIMESTAMP, last_active TIMESTAMP)''')
+            c.execute('''CREATE TABLE IF NOT EXISTS messages (
+                id INTEGER PRIMARY KEY AUTOINCREMENT, chat_id TEXT, role TEXT, 
+                content TEXT, debug_data TEXT, timestamp TIMESTAMP)''')
+            conn.commit()
+
+>>>>>>> d3e372da30590eab253bed78f91e2eca3a01a21e
     def get_config(self, key):
         with sqlite3.connect(self.db_path) as conn:
             res = conn.execute("SELECT value FROM system_config WHERE key = ?", (key,)).fetchone()
@@ -82,6 +115,7 @@ class SoulCoreDatabase:
             conn.execute("INSERT OR REPLACE INTO system_config VALUES (?, ?)", (key, json.dumps(value)))
             conn.commit()
 
+<<<<<<< HEAD
     def get_full_config(self):
         return {
             "project": self.get_config("project") or {},
@@ -94,6 +128,12 @@ class SoulCoreDatabase:
     # --- SLOT KEZELÉS ---
     def save_slot(self, name, data):
         with sqlite3.connect(self.db_path) as conn:
+=======
+    # --- SLOTOK ---
+    def save_slot(self, name, data):
+        with sqlite3.connect(self.db_path) as conn:
+            # JAVÍTVA: Pontosan 11 darab '?' kell a 11 oszlophoz
+>>>>>>> d3e372da30590eab253bed78f91e2eca3a01a21e
             conn.execute('''INSERT OR REPLACE INTO slots VALUES (?,?,?,?,?,?,?,?,?,?,?)''',
                 (
                     name, 
@@ -115,7 +155,11 @@ class SoulCoreDatabase:
             conn.row_factory = sqlite3.Row
             return {row['name']: dict(row) for row in conn.execute("SELECT * FROM slots WHERE enabled = 1").fetchall()}
 
+<<<<<<< HEAD
     # --- RAG / VEKTOR MŰVELETEK ---
+=======
+    # --- RAG MŰVELETEK ---
+>>>>>>> d3e372da30590eab253bed78f91e2eca3a01a21e
     def _init_vector_collections(self):
         try:
             collections = self.client.get_collections().collections
@@ -136,7 +180,10 @@ class SoulCoreDatabase:
             results = self.client.search(collection_name="soul_vectors", query_vector=vector, limit=limit, query_filter=filt)
             if not results: return ""
             passages = [res.payload.get("text", "") for res in results]
+<<<<<<< HEAD
             
+=======
+>>>>>>> d3e372da30590eab253bed78f91e2eca3a01a21e
             if self.reranker and len(passages) > 1:
                 scores = self.reranker.predict([[query_text, p] for p in passages])
                 ranked = sorted(zip(scores, passages), key=lambda x: x[0], reverse=True)
@@ -153,6 +200,7 @@ class SoulCoreDatabase:
                 "user_id": user_id, "chat_id": chat_id, "text": text, "timestamp": datetime.now().isoformat()
             })]
         )
+<<<<<<< HEAD
 
     # --- CHAT ÉS ÜZENET KEZELÉS ---
     def save_message(self, chat_id, role, content, debug=None):
@@ -212,18 +260,38 @@ class SoulCoreDatabase:
             )
             conn.commit()
             return key
+=======
+
+    def save_message(self, chat_id, role, content, debug=None):
+        with sqlite3.connect(self.db_path) as conn:
+            conn.execute("INSERT INTO messages (chat_id, role, content, debug_data, timestamp) VALUES (?, ?, ?, ?, ?)",
+                         (chat_id, role, content, json.dumps(debug) if debug else None, datetime.now()))
+            # JAVÍTVA: chat létrehozása, ha még nincs
+            conn.execute("INSERT OR IGNORE INTO chats (chat_id, user_id, created_at) VALUES (?, ?, ?)", (chat_id, "Grumpy", datetime.now()))
+            conn.execute("UPDATE chats SET last_active = ? WHERE chat_id = ?", (datetime.now(), chat_id))
+            conn.commit()
+>>>>>>> d3e372da30590eab253bed78f91e2eca3a01a21e
 
     # --- GRÁF ÉS SEED ADATOK ---
     def _load_graph(self):
         if os.path.exists(self.graph_path):
+<<<<<<< HEAD
             try:
                 with open(self.graph_path, 'r', encoding='utf-8') as f:
                     return nx.node_link_graph(json.load(f))
             except Exception: return nx.MultiDiGraph()
+=======
+            with open(self.graph_path, 'r', encoding='utf-8') as f:
+                return nx.node_link_graph(json.load(f))
+>>>>>>> d3e372da30590eab253bed78f91e2eca3a01a21e
         return nx.MultiDiGraph()
 
     def _seed_initial_data(self):
         print("🌱 Teljes SoulCore rendszer-migráció az adatbázisba...")
+<<<<<<< HEAD
+=======
+        
+>>>>>>> d3e372da30590eab253bed78f91e2eca3a01a21e
         self.set_config("project", {"name": "SoulCore", "version": "2.0", "identity": "Kópé", "user_lang": "hu", "internal_lang": "en"})
         self.set_config("api", {"host": "0.0.0.0", "port": 8000, "cors": ["*"], "timeout": 60})
         self.set_config("hardware", {"gpu_count": 1, "total_vram_limit_mb": 16384, "cuda_device": "cuda:0"})
@@ -239,6 +307,10 @@ class SoulCoreDatabase:
             "reranker": {"enabled": False, "local_path": "/mnt/raid/soulcore/SoulCore2.0/models/reranker/qwen3vlreranker2B", "top_n": 5, "relevance_threshold": 0.65}
         })
 
+<<<<<<< HEAD
+=======
+        # JAVÍTVA: n_ctx és max_vram_mb patikamérlegen porciózva a 16GB-hoz
+>>>>>>> d3e372da30590eab253bed78f91e2eca3a01a21e
         slots = {
             "translator": {
                 "enabled": 1, "role": "Translator", "engine": "gguf", 
@@ -247,6 +319,7 @@ class SoulCoreDatabase:
             },
             "scribe": {
                 "enabled": 1, "role": "Gatekeeper", "engine": "gguf", 
+<<<<<<< HEAD
                 "model_name": "NuExtract-v1.5", "filename": "NuExtract-v1.5-Q3_K_XL.gguf", 
                 "gpu_id": 0, "max_vram_mb": 3000, "n_ctx": 2048, "temperature": 0.0, "model_path": "./models"
             },
@@ -254,6 +327,15 @@ class SoulCoreDatabase:
                 "enabled": 1, "role": "Logistics", "engine": "gguf", 
                 "model_name": "Qwen2.5 1.5B", "filename": "qwen2.5-1.5b-instruct-q4_k_m.gguf", 
                 "gpu_id": 0, "max_vram_mb": 4000, "n_ctx": 2048, "temperature": 0.4, "model_path": "./models"
+=======
+                "model_name": "Llama-3.2-3B", "filename": "Llama-3.2-3B-Instruct-Q3_K_XL.gguf", 
+                "gpu_id": 0, "max_vram_mb": 3000, "n_ctx": 2048, "temperature": 0.1, "model_path": "./models"
+            },
+            "valet": {
+                "enabled": 1, "role": "Logistics", "engine": "gguf", 
+                "model_name": "Llama-3.2-3B", "filename": "Llama-3.2-3B-Instruct-Q3_K_XL.gguf", 
+                "gpu_id": 0, "max_vram_mb": 3000, "n_ctx": 2048, "temperature": 0.4, "model_path": "./models"
+>>>>>>> d3e372da30590eab253bed78f91e2eca3a01a21e
             },
             "king": {
                 "enabled": 1, "role": "Sovereign", "engine": "gguf", 
@@ -263,13 +345,36 @@ class SoulCoreDatabase:
         }
         for name, data in slots.items():
             self.save_slot(name, data)
+<<<<<<< HEAD
+
+        with sqlite3.connect(self.db_path) as conn:
+            conn.execute("INSERT OR IGNORE INTO users VALUES (?, ?, ?)", ("Grumpy", "Grumpy", "admin"))
+            conn.commit()
+=======
+>>>>>>> d3e372da30590eab253bed78f91e2eca3a01a21e
 
         with sqlite3.connect(self.db_path) as conn:
             conn.execute("INSERT OR IGNORE INTO users VALUES (?, ?, ?)", ("Grumpy", "Grumpy", "admin"))
             conn.commit()
 
+    
+    def get_full_config(self):
+        """Összegyűjti az összes rendszerkonfigurációt egy struktúrába a frontend számára."""
+        # Biztonsági háló: ha valamiért üres a lekérdezés, ne dőljön össze a front-end
+        return {
+            "project": self.get_config("project") or {},
+            "api": self.get_config("api") or {},
+            "hardware": self.get_config("hardware") or {},
+            "storage": self.get_config("storage") or {},
+            "rag_system": self.get_config("rag_system") or {}
+        }
+    
     def close(self):
+<<<<<<< HEAD
         if hasattr(self, 'client'): 
             try:
                 self.client._client.close()
             except: pass
+=======
+        if hasattr(self, 'client'): self.client._client.close()
+>>>>>>> d3e372da30590eab253bed78f91e2eca3a01a21e

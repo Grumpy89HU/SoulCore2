@@ -6,6 +6,7 @@ from fastapi.responses import JSONResponse, HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from passlib.context import CryptContext
 
+<<<<<<< HEAD
 # Naplózás beállítása
 logger = logging.getLogger("soulcore.web")
 
@@ -28,6 +29,27 @@ def integrate_web_interface(app: FastAPI):
             raise HTTPException(status_code=503, detail="SoulCore Kernel nem elérhető.")
         return _internal_core
 
+=======
+# Biztonsági konfiguráció
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+_internal_core = None # Globális referencia az Orchestratorhoz
+
+def integrate_web_interface(app: FastAPI):
+    """Regisztrálja a webes felület útvonalait és a logikát."""
+    
+    # Statikus fájlok kiszolgálása (a gui és gui_static szinonimák a biztonság kedvéért)
+    if os.path.exists("web"):
+        app.mount("/gui", StaticFiles(directory="web"), name="gui")
+        app.mount("/gui_static", StaticFiles(directory="web"), name="gui_static")
+
+    # --- Segédfüggvények (Auth) ---
+    def verify_password(plain_password, hashed_password):
+        return pwd_context.verify(plain_password, hashed_password)
+
+    def get_password_hash(password):
+        return pwd_context.hash(password)
+
+>>>>>>> d3e372da30590eab253bed78f91e2eca3a01a21e
     # --- Auth Végpontok ---
     @app.get("/login", response_class=HTMLResponse)
     async def login_page():
@@ -35,7 +57,11 @@ def integrate_web_interface(app: FastAPI):
         if os.path.exists(login_path):
             with open(login_path, "r", encoding="utf-8") as f:
                 return f.read()
+<<<<<<< HEAD
         return "Login page missing. Please check 'web/login.html' path."
+=======
+        return "Login page (web/login.html) missing."
+>>>>>>> d3e372da30590eab253bed78f91e2eca3a01a21e
 
     @app.post("/login")
     async def login(request: Request):
@@ -43,13 +69,21 @@ def integrate_web_interface(app: FastAPI):
         username = data.get("username")
         password = data.get("password")
         
+<<<<<<< HEAD
         # 1. Próbálkozás az adatbázis alapú azonosítással
+=======
+        # 1. Próbáljuk az SQL-ből (ha van már core és verify_user metódus)
+>>>>>>> d3e372da30590eab253bed78f91e2eca3a01a21e
         if _internal_core and hasattr(_internal_core.db, 'verify_user'):
             if _internal_core.db.verify_user(username, password):
                 request.session["user"] = username
                 return {"status": "success"}
 
+<<<<<<< HEAD
         # 2. Hardcoded fallback (Amnézia-gyilkos alapértelmezett)
+=======
+        # 2. Hard-fallback az első belépéshez (ha az SQL még üres)
+>>>>>>> d3e372da30590eab253bed78f91e2eca3a01a21e
         if username == "admin" and password == "soulcore":
             request.session["user"] = username
             return {"status": "success"}
@@ -61,16 +95,25 @@ def integrate_web_interface(app: FastAPI):
         request.session.clear()
         return RedirectResponse(url="/login")
 
+<<<<<<< HEAD
     # --- Védett Végpontok (UI & API) ---
     
+=======
+    # --- Védett Végpontok (UI) ---
+>>>>>>> d3e372da30590eab253bed78f91e2eca3a01a21e
     @app.get("/", response_class=HTMLResponse)
     async def root_web_access(request: Request):
         if "user" not in request.session:
             return RedirectResponse(url="/login")
+<<<<<<< HEAD
+=======
+        
+>>>>>>> d3e372da30590eab253bed78f91e2eca3a01a21e
         index_path = "web/index.html"
         if os.path.exists(index_path):
             with open(index_path, "r", encoding="utf-8") as f:
                 return f.read()
+<<<<<<< HEAD
         return "Index page missing. Check 'web/index.html'."
 
     @app.get("/chats/list")
@@ -95,9 +138,15 @@ def integrate_web_interface(app: FastAPI):
         core = check_core()
         history = core.db.get_chat_history(chat_id)
         return JSONResponse(content=history)
+=======
+        return "Index page missing."
+>>>>>>> d3e372da30590eab253bed78f91e2eca3a01a21e
 
+    # --- API Funkciók (Minden visszatért) ---
+    
     @app.post("/process")
     async def process_request(request: Request):
+<<<<<<< HEAD
         if "user" not in request.session: raise HTTPException(status_code=403)
         core = check_core()
         data = await request.json()
@@ -153,5 +202,37 @@ def integrate_web_interface(app: FastAPI):
     return app
 
 def set_core_reference(instance):
+=======
+        """A webfelületről érkező kérdések közvetlen kiszolgálása."""
+        if "user" not in request.session:
+            raise HTTPException(status_code=403)
+        if not _internal_core:
+            raise HTTPException(status_code=503, detail="Kernel initializing...")
+            
+        data = await request.json()
+        # Meghívjuk az Orchestrator pipeline-ját
+        result = await _internal_core.process_pipeline(data.get("query"))
+        return JSONResponse(content=result)
+
+    @app.post("/settings/update")
+    async def update_settings(request: Request):
+        """Beállítások mentése az SQL-be."""
+        if "user" not in request.session: raise HTTPException(status_code=403)
+        if not _internal_core: raise HTTPException(status_code=503)
+        
+        data = await request.json()
+        # Itt az SQL-be mentjük az adatokat (feltételezve a set_config vagy update_full_config metódust)
+        try:
+            for key, value in data.items():
+                _internal_core.db.set_config(key, value)
+            return {"status": "saved"}
+        except Exception as e:
+            return JSONResponse(status_code=500, content={"error": str(e)})
+
+    return app
+
+def set_core_reference(instance):
+    """Szinkronizáció a main.py-ból a lifespan alatt."""
+>>>>>>> d3e372da30590eab253bed78f91e2eca3a01a21e
     global _internal_core
     _internal_core = instance

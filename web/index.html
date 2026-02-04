@@ -14,11 +14,15 @@
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: #30363d; border-radius: 10px; }
         .response-text { white-space: pre-wrap; word-wrap: break-word; }
+<<<<<<< HEAD
         .chat-item.active { background-color: #1c2128; border-left: 3px solid #2563eb; color: white; }
+=======
+>>>>>>> d3e372da30590eab253bed78f91e2eca3a01a21e
     </style>
 </head>
 <body class="h-screen overflow-hidden flex">
 
+<<<<<<< HEAD
     <aside class="sidebar w-72 flex flex-col p-4 space-y-4">
         <div class="font-bold text-blue-500 tracking-tighter text-xl mb-4 flex items-center gap-2">
             <div class="h-3 w-3 bg-blue-500 rounded-full animate-pulse"></div> SOULCORE 2.0
@@ -45,6 +49,25 @@
         </div>
 
         <div class="space-y-1 pt-2">
+=======
+    <aside class="sidebar w-64 flex flex-col p-4 space-y-4">
+        <div class="font-bold text-blue-500 tracking-tighter text-xl mb-4 flex items-center gap-2">
+            <div class="h-3 w-3 bg-blue-500 rounded-full animate-pulse"></div> SOULCORE
+        </div>
+        
+        <button onclick="location.reload()" class="w-full py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm font-medium transition-all shadow-lg shadow-blue-900/20">
+            + Új Chat / Reset
+        </button>
+
+        <div class="flex-grow overflow-y-auto space-y-2 text-sm text-gray-400">
+            <p class="text-[10px] uppercase font-bold text-gray-600 px-2 mt-4 tracking-widest">Műveleti Napló</p>
+            <div id="system-logs" class="space-y-1 opacity-60 px-2">
+                <div class="log-line text-emerald-500">> SoulCore initialized</div>
+            </div>
+        </div>
+
+        <div class="space-y-1">
+>>>>>>> d3e372da30590eab253bed78f91e2eca3a01a21e
             <button onclick="toggleSettings()" class="w-full text-left p-2 hover:bg-gray-800 rounded text-sm flex items-center gap-2 transition-colors">
                 ⚙️ Rendszervezérlés
             </button>
@@ -57,7 +80,11 @@
     <section class="flex-grow flex flex-col">
         <nav class="p-3 border-b border-gray-800 flex justify-between items-center bg-[#161b22]">
             <div id="gpu-stats" class="text-[10px] text-gray-500 font-mono italic uppercase tracking-wider">
+<<<<<<< HEAD
                 Szenzorok: Figyelés aktív...
+=======
+                Szenzorok: Inicializálás...
+>>>>>>> d3e372da30590eab253bed78f91e2eca3a01a21e
             </div>
             <div class="flex items-center gap-2 text-xs">
                 <span id="status-text" class="font-mono text-[10px] text-gray-400">KERNEL V2.0</span>
@@ -87,6 +114,10 @@
 
     <div id="settings-modal" class="hidden fixed inset-0 settings-modal z-50 flex items-center justify-center p-4">
         <div class="w-full max-w-4xl bg-[#161b22] border border-gray-700 rounded-2xl flex flex-col max-h-[90vh] shadow-2xl overflow-hidden">
+<<<<<<< HEAD
+=======
+            
+>>>>>>> d3e372da30590eab253bed78f91e2eca3a01a21e
             <div class="p-5 border-b border-gray-800 flex justify-between items-center bg-[#1c2128]">
                 <div>
                     <h2 class="text-lg font-bold text-white tracking-tight">SoulCore 2.0 Vezérlőpult</h2>
@@ -94,6 +125,10 @@
                 </div>
                 <button onclick="toggleSettings()" class="text-gray-500 hover:text-white transition-colors text-xl">✕</button>
             </div>
+<<<<<<< HEAD
+=======
+
+>>>>>>> d3e372da30590eab253bed78f91e2eca3a01a21e
             <div class="flex flex-grow overflow-hidden">
                 <div class="w-48 border-r border-gray-800 p-4 space-y-1 bg-[#161b22]">
                     <button onclick="showTab('tab-gen')" class="tab-btn active w-full text-left p-2 rounded text-xs transition-all">🚀 Projekt</button>
@@ -101,6 +136,10 @@
                     <button onclick="showTab('tab-slots')" class="tab-btn w-full text-left p-2 rounded text-xs transition-all hover:bg-gray-800">🧩 Slotok</button>
                     <button onclick="showTab('tab-rag')" class="tab-btn w-full text-left p-2 rounded text-xs transition-all hover:bg-gray-800">📚 RAG / Vault</button>
                 </div>
+<<<<<<< HEAD
+=======
+
+>>>>>>> d3e372da30590eab253bed78f91e2eca3a01a21e
                 <div class="flex-grow overflow-y-auto p-8 bg-[#0d1117]">
                     <div id="tab-gen" class="tab-pane space-y-6">
                         <h3 class="text-xs font-bold text-blue-500 uppercase tracking-widest border-b border-blue-900/30 pb-2">Entitás</h3>
@@ -118,6 +157,10 @@
                             </div>
                         </div>
                     </div>
+<<<<<<< HEAD
+=======
+
+>>>>>>> d3e372da30590eab253bed78f91e2eca3a01a21e
                     <div id="tab-hw" class="tab-pane hidden space-y-6">
                         <h3 class="text-xs font-bold text-amber-500 uppercase tracking-widest border-b border-amber-900/30 pb-2">Erőforrások</h3>
                         <div class="grid grid-cols-2 gap-4">
@@ -131,10 +174,18 @@
                             </div>
                         </div>
                     </div>
+<<<<<<< HEAD
+=======
+
+>>>>>>> d3e372da30590eab253bed78f91e2eca3a01a21e
                     <div id="tab-slots" class="tab-pane hidden space-y-4">
                         <h3 class="text-xs font-bold text-emerald-500 uppercase tracking-widest border-b border-emerald-900/30 pb-2">Aktív GGUF Slotok</h3>
                         <div id="slot-container" class="space-y-3"></div>
                     </div>
+<<<<<<< HEAD
+=======
+
+>>>>>>> d3e372da30590eab253bed78f91e2eca3a01a21e
                     <div id="tab-rag" class="tab-pane hidden space-y-6">
                         <h3 class="text-xs font-bold text-purple-500 uppercase tracking-widest border-b border-purple-900/30 pb-2">Hosszútávú Memória</h3>
                         <div class="grid grid-cols-2 gap-4">
@@ -150,17 +201,28 @@
                     </div>
                 </div>
             </div>
+<<<<<<< HEAD
+=======
+
+>>>>>>> d3e372da30590eab253bed78f91e2eca3a01a21e
             <div class="p-4 border-t border-gray-800 bg-[#161b22] flex justify-between items-center">
                 <span id="save-status" class="text-[9px] text-gray-500 italic uppercase tracking-tighter">Készen áll a szinkronizációra.</span>
                 <div class="flex gap-2">
                     <button onclick="toggleSettings()" class="px-4 py-2 text-xs text-gray-400 hover:text-white transition-colors font-mono">CANCEL</button>
+<<<<<<< HEAD
                     <button onclick="saveAllSettings()" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded text-xs font-bold text-white transition-all shadow-lg shadow-blue-900/40 font-mono">SYNC TO SQL</button>
+=======
+                    <button onclick="saveAllSettings()" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded text-xs font-bold text-white transition-all shadow-lg shadow-blue-900/40 font-mono">
+                        SYNC TO SQL
+                    </button>
+>>>>>>> d3e372da30590eab253bed78f91e2eca3a01a21e
                 </div>
             </div>
         </div>
     </div>
 
     <script>
+<<<<<<< HEAD
         let currentChatId = "dev_room_001";
         let cachedConfig = null;
 
@@ -225,6 +287,116 @@
                     </div>`;
             }
             chatBox.scrollTop = chatBox.scrollHeight;
+=======
+        let cachedConfig = null;
+
+        function toggleSettings() {
+            const modal = document.getElementById('settings-modal');
+            modal.classList.toggle('hidden');
+            if(!modal.classList.contains('hidden')) loadSettings();
+        }
+
+        function showTab(tabId) {
+            document.querySelectorAll('.tab-pane').forEach(t => t.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active', 'bg-blue-600'));
+            document.getElementById(tabId).classList.remove('hidden');
+            event.currentTarget.classList.add('active');
+        }
+
+        async function loadSettings() {
+            try {
+                const res = await fetch('/telemetry');
+                cachedConfig = await res.json();
+                
+                const { config, slots_info } = cachedConfig;
+                
+                document.getElementById('cfg-identity').value = config.project.identity;
+                document.getElementById('cfg-lang').value = config.project.user_lang;
+                document.getElementById('cfg-gpu-count').value = config.hardware.gpu_count;
+                document.getElementById('cfg-vram-limit').value = config.hardware.total_vram_limit_mb;
+                document.getElementById('cfg-window').value = config.rag_system.context.window_size;
+                document.getElementById('cfg-chunks').value = config.rag_system.context.max_chunks_per_query;
+
+                const container = document.getElementById('slot-container');
+                container.innerHTML = "";
+                Object.entries(slots_info).forEach(([name, slot]) => {
+                    container.innerHTML += `
+                        <div class="flex items-center justify-between p-3 bg-[#1c2128] border border-gray-800 rounded-lg group hover:border-blue-900 transition-all">
+                            <div class="flex flex-col">
+                                <span class="text-xs font-bold text-gray-300 capitalize">${name}</span>
+                                <span class="text-[8px] text-gray-500 font-mono opacity-50">${slot.filename}</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <span class="text-[9px] text-gray-600 font-mono italic">${slot.max_vram_mb} MB</span>
+                                <input type="checkbox" class="slot-toggle" data-slot="${name}" ${slot.enabled ? 'checked' : ''} 
+                                    style="width:18px; height:18px; accent-color:#2563eb;">
+                            </div>
+                        </div>`;
+                });
+                addLog(`Configuration pulled from SQL.`);
+            } catch (e) { console.error("Konfigurációs hiba:", e); }
+        }
+
+        async function saveAllSettings() {
+            const btn = event.currentTarget;
+            btn.innerText = "SAVING...";
+            btn.disabled = true;
+
+            const slotUpdates = {};
+            document.querySelectorAll('.slot-toggle').forEach(chk => {
+                const name = chk.dataset.slot;
+                // Megtartjuk az eredeti adatokat, csak az enabled-et írjuk felül
+                slotUpdates[name] = {
+                    ...cachedConfig.slots_info[name],
+                    enabled: chk.checked ? 1 : 0
+                };
+            });
+
+            const fullPayload = {
+                project: { identity: document.getElementById('cfg-identity').value, user_lang: document.getElementById('cfg-lang').value },
+                hardware: { gpu_count: parseInt(document.getElementById('cfg-gpu-count').value), total_vram_limit_mb: parseInt(document.getElementById('cfg-vram-limit').value) },
+                rag_system: { 
+                    ...cachedConfig.config.rag_system,
+                    context: { 
+                        window_size: parseInt(document.getElementById('cfg-window').value), 
+                        max_chunks_per_query: parseInt(document.getElementById('cfg-chunks').value) 
+                    }
+                },
+                slots: slotUpdates
+            };
+
+            try {
+                const res = await fetch('/settings/update_full', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(fullPayload)
+                });
+
+                if(res.ok) {
+                    addLog("SQL Database synchronized successfully.");
+                    document.getElementById('save-status').innerText = "Változások mentve! Újraindítás szükséges.";
+                    setTimeout(() => toggleSettings(), 1000);
+                }
+            } catch (e) { addLog("FAILED to sync database!"); }
+            
+            btn.innerText = "SYNC TO SQL";
+            btn.disabled = false;
+        }
+
+        function addLog(msg) {
+            const logBox = document.getElementById('system-logs');
+            const time = new Date().toLocaleTimeString();
+            logBox.innerHTML += `<div class="log-line text-[9px]"><span class="text-gray-600">[${time}]</span> ${msg}</div>`;
+            logBox.scrollTop = logBox.scrollHeight;
+        }
+
+        async function restartKernel() {
+            if(confirm("Biztosan újraindítod a SoulCore Kernelt? (Ez megszakítja a folyamatokat)")) {
+                addLog("REBOOT COMMAND ISSUED...");
+                // Itt hívhatnánk egy restart végpontot, ha csinálunk
+                location.reload(); 
+            }
+>>>>>>> d3e372da30590eab253bed78f91e2eca3a01a21e
         }
 
         async function sendMessage() {
@@ -232,8 +404,15 @@
             const query = input.value.trim();
             if (!query) return;
 
+<<<<<<< HEAD
             renderMessage('user', query);
             input.value = "";
+=======
+            const chatBox = document.getElementById('chat-box');
+            chatBox.innerHTML += `<div class="flex justify-end mb-4"><div class="bg-blue-600 text-white p-3 px-5 rounded-2xl max-w-xl text-sm shadow-lg">${query}</div></div>`;
+            input.value = "";
+            chatBox.scrollTop = chatBox.scrollHeight;
+>>>>>>> d3e372da30590eab253bed78f91e2eca3a01a21e
 
             try {
                 const res = await fetch('/process', {
@@ -242,15 +421,32 @@
                     body: JSON.stringify({query: query, chat_id: currentChatId})
                 });
                 const data = await res.json();
+<<<<<<< HEAD
                 renderMessage('assistant', data.response);
                 addLog(`Válasz érkezett (${data.metadata.time}s)`);
                 // Ha új chat volt, a válasz után frissítsük a listát az új cím miatt
                 loadChatHistory();
             } catch (e) {
                 document.getElementById('chat-box').innerHTML += `<div class="text-red-500 text-[10px] text-center font-mono py-4">!!! KERNEL ERROR !!!</div>`;
+=======
+
+                chatBox.innerHTML += `
+                    <div class="mb-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
+                        <div class="flex items-center gap-2 mb-1 px-1 font-mono">
+                            <span class="text-[9px] text-blue-500 font-bold uppercase tracking-widest">${data.identity}</span>
+                            <span class="text-[8px] text-gray-600 italic">| runtime: ${data.metadata.time}s</span>
+                        </div>
+                        <div class="bg-[#161b22] border border-gray-800 p-5 rounded-2xl max-w-3xl text-sm leading-relaxed shadow-sm text-gray-200 response-text border-l-4 border-l-blue-900">${data.response}</div>
+                    </div>`;
+                addLog(`Processed query: ${query.substring(0,20)}...`);
+            } catch (e) {
+                chatBox.innerHTML += `<div class="text-red-500 text-[10px] text-center font-mono py-4">!!! CRITICAL KERNEL COMMUNICATION ERROR !!!</div>`;
+>>>>>>> d3e372da30590eab253bed78f91e2eca3a01a21e
             }
+            chatBox.scrollTop = chatBox.scrollHeight;
         }
 
+<<<<<<< HEAD
         function newChat() {
             currentChatId = "chat_" + Date.now();
             document.getElementById('chat-box').innerHTML = '<div class="text-center text-gray-600 my-10 font-mono text-[10px] tracking-[0.3em] uppercase opacity-40">--- Új Szuverén Adatfolyam Megnyitva ---</div>';
@@ -333,19 +529,30 @@
             logBox.scrollTop = logBox.scrollHeight;
         }
 
+=======
+>>>>>>> d3e372da30590eab253bed78f91e2eca3a01a21e
         async function updateStats() {
             try {
                 const res = await fetch('/status');
                 const data = await res.json();
                 if (data.hardware && data.hardware.length > 0) {
                     const gpu = data.hardware[0];
+<<<<<<< HEAD
                     document.getElementById('gpu-stats').innerText = `TEMP: ${gpu.temp}°C | VRAM: ${gpu.vram_used} / ${gpu.vram_total} MB | LOAD: ${gpu.load}%`;
+=======
+                    document.getElementById('gpu-stats').innerText = 
+                        `TEMP: ${gpu.temp}°C | VRAM: ${gpu.vram_used} / ${gpu.vram_total} MB | LOAD: ${gpu.load}%`;
+>>>>>>> d3e372da30590eab253bed78f91e2eca3a01a21e
                 }
             } catch (e) {}
         }
 
         document.getElementById('user-input').addEventListener('keypress', (e) => { if(e.key === 'Enter') sendMessage(); });
         setInterval(updateStats, 5000);
+<<<<<<< HEAD
+=======
+        updateStats();
+>>>>>>> d3e372da30590eab253bed78f91e2eca3a01a21e
     </script>
 </body>
 </html>
