@@ -4,11 +4,17 @@ import time
 import logging
 from typing import Dict, Any, AsyncGenerator
 from src.orchestrator import Orchestrator
+from src.utils.monitor import SoulCoreMonitor  # Új import a telemetriához
 
 class SoulCoreKernel:
     def __init__(self, mode="production", db_path="vault/db/soulcore.db"):
         self.mode = mode  # "test" vagy "production"
-        self.start_time = time.time()
+        
+        # Monitor inicializálása - Ez kezeli a GPU/CPU statokat és a logolást
+        self.monitor = SoulCoreMonitor()
+        # Az indítási időt a monitortól vesszük át a szinkronitás miatt
+        self.start_time = self.monitor.start_time
+        
         self.logger = logging.getLogger("KernelCore")
         
         # Ha production, inicializáljuk a valódi motort
@@ -18,8 +24,18 @@ class SoulCoreKernel:
         else:
             self.orchestrator = None
             
-        print(f"🏰 SoulCore Kernel Online (Mode: {self.mode})")
+        # A monitoron keresztül is logoljuk az indulást
+        self.monitor.log_event("Kernel", f"SoulCore Kernel Online (Mode: {self.mode})")
 
+    def get_hardware_stats(self):
+        """A Webserver ezen keresztül kéri le a telemetriát az index.html számára."""
+        return self.monitor.get_hardware_stats()
+
+    @property
+    def uptime_raw(self):
+        """Visszaadja a nyers uptime másodperceket."""
+        return time.time() - self.start_time
+    
     async def dispatch_scribe(self, user_input: str) -> Dict[str, Any]:
         """A Scribe elemzi a szándékot az Orchestratoron keresztül."""
         print("✍️  Scribe is analyzing intent...")
@@ -39,7 +55,11 @@ class SoulCoreKernel:
         
         # Az Orchestrator logikáját követve itt a Vault-ból húzunk adatot
         keywords = intent_data.get("keywords", "")
-        vault_data = self.orchestrator.db.query_vault(keywords)
+        # Ellenőrizzük, hogy a db elérhető-e
+        if self.orchestrator and hasattr(self.orchestrator, 'db'):
+            vault_data = self.orchestrator.db.query_vault(keywords)
+        else:
+            vault_data = "Vault nem érhető el."
         return {"report": vault_data}
 
     async def dispatch_king(self, user_input: str, chat_id="default"):
@@ -52,9 +72,7 @@ class SoulCoreKernel:
                 yield word + " "
                 await asyncio.sleep(0.1)
         else:
-            # Valódi pipeline futtatás
-            # Mivel az Orchestrator process_pipeline jelenleg egyben adja vissza a választ, 
-            # itt meghívjuk, de a jövőben itt implementálhatod a valódi chunk-alapú streaminget.
+            # Valódi pipeline futtatás az Orchestratoron keresztül
             result = await self.orchestrator.process_pipeline(user_input, chat_id=chat_id)
             full_response = result.get("response", "...")
             for word in full_response.split():
@@ -65,14 +83,13 @@ class SoulCoreKernel:
         """A teljes kognitív lánc futtatása a konzolon."""
         print(f"\n--- SoulCore Pipeline Start ---")
         
-        # 1-2. Scribe és Valet folyamat (Az orchestratoron belül futnak alapból, de itt külön is hívhatóak)
+        # 1-2. Scribe és Valet folyamat (Az orchestratoron belül futnak alapból)
         async for chunk in self.dispatch_king(user_input, chat_id=chat_id):
             print(chunk, end="", flush=True)
             
-        print(f"\n--- End (Uptime: {round(time.time() - self.start_time, 2)}s) ---")
+        print(f"\n--- End (Uptime: {round(self.uptime_raw, 2)}s) ---")
 
-# Futtatás
+# Futtatás teszteléshez
 if __name__ == "__main__":
-    # Teszt módban nem indítja be a nehéz modelleket
     kernel = SoulCoreKernel(mode="test")
     asyncio.run(kernel.main_pipeline("Mikor lesz kész a Vár?"))
