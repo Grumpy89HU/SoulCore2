@@ -2,417 +2,139 @@
 <html lang="hu">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SoulCore 2.0 - Sovereign Terminal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background-color: #0d1117; color: #c9d1d9; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: #0d1117; color: #c9d1d9; font-family: 'Inter', 'Segoe UI', sans-serif; }
         .sidebar { background: #161b22; border-right: 1px solid #30363d; }
         .terminal-bg { background: rgba(22, 27, 34, 0.95); }
-        .settings-modal { background: rgba(13, 17, 23, 0.98); backdrop-filter: blur(10px); }
         .tab-btn.active { border-left: 3px solid #2563eb; background: #1c2128; color: white; }
-        .log-line { font-family: 'Courier New', monospace; font-size: 10px; border-bottom: 1px solid #21262d; }
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-thumb { background: #30363d; border-radius: 10px; }
-        .response-text { white-space: pre-wrap; word-wrap: break-word; }
-<<<<<<< HEAD
+        .response-text { white-space: pre-wrap; word-wrap: break-word; line-height: 1.6; }
         .chat-item.active { background-color: #1c2128; border-left: 3px solid #2563eb; color: white; }
-=======
->>>>>>> d3e372da30590eab253bed78f91e2eca3a01a21e
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-thumb { background: #30363d; border-radius: 10px; }
+        @keyframes pulse-soft { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .thinking { animation: pulse-soft 2s infinite; }
     </style>
 </head>
 <body class="h-screen overflow-hidden flex">
 
-<<<<<<< HEAD
     <aside class="sidebar w-72 flex flex-col p-4 space-y-4">
         <div class="font-bold text-blue-500 tracking-tighter text-xl mb-4 flex items-center gap-2">
-            <div class="h-3 w-3 bg-blue-500 rounded-full animate-pulse"></div> SOULCORE 2.0
+            <div class="h-3 w-3 bg-blue-500 rounded-full animate-pulse shadow-[0_0_10px_#3b82f6]"></div> 
+            SOULCORE <span class="text-gray-500 font-light">2.0</span>
         </div>
         
-        <button onclick="newChat()" class="w-full py-3 bg-blue-600 hover:bg-blue-700 rounded-xl text-sm font-bold transition-all shadow-lg shadow-blue-900/20 flex items-center justify-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-            </svg> Új csevegés
+        <button onclick="newChat()" class="w-full py-3 bg-blue-600 hover:bg-blue-700 rounded-xl text-sm font-bold transition-all shadow-lg flex items-center justify-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg> 
+            Új csevegés
         </button>
 
         <div class="flex-grow flex flex-col overflow-hidden">
-            <p class="text-[10px] uppercase font-bold text-gray-600 px-2 mt-4 mb-2 tracking-widest">Csevegési Előzmények</p>
-            <div id="chat-history-list" class="flex-grow overflow-y-auto space-y-1 pr-2">
-                <div class="text-[10px] text-gray-700 p-4 italic text-center">Nincsenek korábbi beszélgetések.</div>
-            </div>
+            <p class="text-[10px] uppercase font-bold text-gray-600 px-2 mt-4 mb-2 tracking-widest">Memória Slotok</p>
+            <div id="chat-history-list" class="flex-grow overflow-y-auto space-y-1 pr-2 text-gray-400"></div>
         </div>
 
-        <div class="flex flex-col space-y-2 text-sm text-gray-400 border-t border-gray-800 pt-4">
-            <p class="text-[10px] uppercase font-bold text-gray-600 px-2 tracking-widest">Műveleti Napló</p>
-            <div id="system-logs" class="h-24 overflow-y-auto space-y-1 opacity-60 px-2 font-mono text-[9px]">
-                <div class="log-line text-emerald-500">> Rendszer üzemkész.</div>
+        <div class="border-t border-gray-800 pt-4">
+            <p class="text-[10px] uppercase font-bold text-gray-600 px-2 mb-2 tracking-widest">Rendszernapló</p>
+            <div id="system-logs" class="h-32 overflow-y-auto bg-black/20 rounded p-2 font-mono text-[9px] text-gray-500">
+                <div>> Kernel v2.0 ready.</div>
             </div>
         </div>
 
         <div class="space-y-1 pt-2">
-=======
-    <aside class="sidebar w-64 flex flex-col p-4 space-y-4">
-        <div class="font-bold text-blue-500 tracking-tighter text-xl mb-4 flex items-center gap-2">
-            <div class="h-3 w-3 bg-blue-500 rounded-full animate-pulse"></div> SOULCORE
-        </div>
-        
-        <button onclick="location.reload()" class="w-full py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm font-medium transition-all shadow-lg shadow-blue-900/20">
-            + Új Chat / Reset
-        </button>
-
-        <div class="flex-grow overflow-y-auto space-y-2 text-sm text-gray-400">
-            <p class="text-[10px] uppercase font-bold text-gray-600 px-2 mt-4 tracking-widest">Műveleti Napló</p>
-            <div id="system-logs" class="space-y-1 opacity-60 px-2">
-                <div class="log-line text-emerald-500">> SoulCore initialized</div>
-            </div>
-        </div>
-
-        <div class="space-y-1">
->>>>>>> d3e372da30590eab253bed78f91e2eca3a01a21e
-            <button onclick="toggleSettings()" class="w-full text-left p-2 hover:bg-gray-800 rounded text-sm flex items-center gap-2 transition-colors">
-                ⚙️ Rendszervezérlés
-            </button>
-            <button onclick="restartKernel()" class="w-full text-left p-2 hover:bg-red-900/20 text-red-400 rounded text-sm flex items-center gap-2 transition-colors font-mono">
-                ☢️ REBOOT KERNEL
-            </button>
+            <button onclick="toggleSettings()" class="w-full text-left p-2 hover:bg-gray-800 rounded text-xs flex items-center gap-2 transition-colors">⚙️ Beállítások</button>
+            <button onclick="location.href='/logout'" class="w-full text-left p-2 hover:bg-red-900/10 text-red-500 rounded text-xs flex items-center gap-2 transition-colors">🚪 Kilépés</button>
         </div>
     </aside>
 
-    <section class="flex-grow flex flex-col">
-        <nav class="p-3 border-b border-gray-800 flex justify-between items-center bg-[#161b22]">
-            <div id="gpu-stats" class="text-[10px] text-gray-500 font-mono italic uppercase tracking-wider">
-<<<<<<< HEAD
-                Szenzorok: Figyelés aktív...
-=======
-                Szenzorok: Inicializálás...
->>>>>>> d3e372da30590eab253bed78f91e2eca3a01a21e
-            </div>
-            <div class="flex items-center gap-2 text-xs">
-                <span id="status-text" class="font-mono text-[10px] text-gray-400">KERNEL V2.0</span>
-                <span id="status-dot" class="h-2 w-2 rounded-full bg-green-500 shadow-[0_0_8px_green]"></span>
+    <section class="flex-grow flex flex-col relative">
+        <nav class="p-3 border-b border-gray-800 flex justify-between items-center bg-[#161b22]/50 backdrop-blur-md">
+            <div id="gpu-stats" class="text-[10px] text-gray-500 font-mono tracking-wider">TELEMETRIA: BETÖLTÉS...</div>
+            <div class="flex items-center gap-4">
+                <div class="flex flex-col items-end">
+                    <span class="text-[9px] text-gray-600 font-mono uppercase" id="kernel-uptime">Uptime: 0s</span>
+                    <span class="text-[10px] text-emerald-500 font-bold" id="status-text">ONLINE</span>
+                </div>
+                <div id="status-dot" class="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]"></div>
             </div>
         </nav>
 
-        <main id="chat-box" class="flex-grow overflow-y-auto p-8 space-y-6 scroll-smooth">
-            <div class="text-center text-gray-600 my-10 font-mono text-[10px] tracking-[0.3em] uppercase opacity-40">
-                --- Szuverén Adatfolyam | Origó & Grumpy ---
+        <main id="chat-box" class="flex-grow overflow-y-auto p-6 space-y-6 scroll-smooth">
+            <div class="h-full flex items-center justify-center opacity-20 flex-col">
+                <div class="text-4xl mb-4">🏰</div>
+                <div class="font-mono text-[10px] tracking-[0.5em] uppercase text-center">A Vár Szuverén Területe</div>
             </div>
         </main>
 
-        <footer class="p-6 bg-[#0d1117] border-t border-gray-900">
-            <div class="max-w-4xl mx-auto relative group">
-                <input type="text" id="user-input" 
-                    class="w-full bg-[#161b22] border border-gray-800 rounded-xl py-4 px-6 focus:outline-none focus:border-blue-600 text-gray-200 shadow-2xl transition-all" 
-                    placeholder="Parancs küldése a SoulCore-nak...">
-                <button onclick="sendMessage()" class="absolute right-4 top-4 text-blue-500 hover:text-blue-400 hover:scale-110 transition-all">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                    </svg>
+        <footer class="p-6 bg-[#0d1117]">
+            <div class="max-w-4xl mx-auto relative">
+                <input type="text" id="user-input" autocomplete="off"
+                    class="w-full bg-[#161b22] border border-gray-800 rounded-2xl py-4 px-6 focus:outline-none focus:border-blue-600 text-gray-200 shadow-2xl transition-all" 
+                    placeholder="Írj Kópénak...">
+                <button onclick="sendMessage()" class="absolute right-4 top-3.5 p-1.5 bg-blue-600 rounded-lg text-white hover:bg-blue-500 transition-all">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
                 </button>
             </div>
         </footer>
     </section>
 
-    <div id="settings-modal" class="hidden fixed inset-0 settings-modal z-50 flex items-center justify-center p-4">
-        <div class="w-full max-w-4xl bg-[#161b22] border border-gray-700 rounded-2xl flex flex-col max-h-[90vh] shadow-2xl overflow-hidden">
-<<<<<<< HEAD
-=======
-            
->>>>>>> d3e372da30590eab253bed78f91e2eca3a01a21e
-            <div class="p-5 border-b border-gray-800 flex justify-between items-center bg-[#1c2128]">
-                <div>
-                    <h2 class="text-lg font-bold text-white tracking-tight">SoulCore 2.0 Vezérlőpult</h2>
-                    <p class="text-[10px] text-blue-500 font-mono uppercase">Vektoros SQL alapú Szuverén Rendszer</p>
-                </div>
-                <button onclick="toggleSettings()" class="text-gray-500 hover:text-white transition-colors text-xl">✕</button>
+    <div id="settings-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center">
+        <div class="w-[800px] h-[600px] bg-[#161b22] border border-gray-700 rounded-3xl flex flex-col overflow-hidden shadow-2xl">
+            <div class="p-4 border-b border-gray-800 flex justify-between items-center">
+                <span class="font-bold text-sm text-blue-400">RENDSZERVEZÉRLÉS</span>
+                <button onclick="toggleSettings()" class="text-gray-500 hover:text-white">✕</button>
             </div>
-<<<<<<< HEAD
-=======
-
->>>>>>> d3e372da30590eab253bed78f91e2eca3a01a21e
-            <div class="flex flex-grow overflow-hidden">
-                <div class="w-48 border-r border-gray-800 p-4 space-y-1 bg-[#161b22]">
-                    <button onclick="showTab('tab-gen')" class="tab-btn active w-full text-left p-2 rounded text-xs transition-all">🚀 Projekt</button>
-                    <button onclick="showTab('tab-hw')" class="tab-btn w-full text-left p-2 rounded text-xs transition-all hover:bg-gray-800">🔌 Hardware</button>
-                    <button onclick="showTab('tab-slots')" class="tab-btn w-full text-left p-2 rounded text-xs transition-all hover:bg-gray-800">🧩 Slotok</button>
-                    <button onclick="showTab('tab-rag')" class="tab-btn w-full text-left p-2 rounded text-xs transition-all hover:bg-gray-800">📚 RAG / Vault</button>
-                </div>
-<<<<<<< HEAD
-=======
-
->>>>>>> d3e372da30590eab253bed78f91e2eca3a01a21e
-                <div class="flex-grow overflow-y-auto p-8 bg-[#0d1117]">
-                    <div id="tab-gen" class="tab-pane space-y-6">
-                        <h3 class="text-xs font-bold text-blue-500 uppercase tracking-widest border-b border-blue-900/30 pb-2">Entitás</h3>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="text-[10px] text-gray-500 uppercase mb-1 block">Műveleti Név</label>
-                                <input id="cfg-identity" type="text" class="w-full bg-[#161b22] border border-gray-700 rounded p-2 text-sm text-gray-200">
-                            </div>
-                            <div>
-                                <label class="text-[10px] text-gray-500 uppercase mb-1 block">Kommunikációs Nyelv</label>
-                                <select id="cfg-lang" class="w-full bg-[#161b22] border border-gray-700 rounded p-2 text-sm text-gray-200">
-                                    <option value="hu">Magyar (Default)</option>
-                                    <option value="en">English (Core)</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-<<<<<<< HEAD
-=======
-
->>>>>>> d3e372da30590eab253bed78f91e2eca3a01a21e
-                    <div id="tab-hw" class="tab-pane hidden space-y-6">
-                        <h3 class="text-xs font-bold text-amber-500 uppercase tracking-widest border-b border-amber-900/30 pb-2">Erőforrások</h3>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="text-[10px] text-gray-500 uppercase mb-1 block">Aktív GPU darabszám</label>
-                                <input id="cfg-gpu-count" type="number" class="w-full bg-[#161b22] border border-gray-700 rounded p-2 text-sm text-gray-200">
-                            </div>
-                            <div>
-                                <label class="text-[10px] text-gray-500 uppercase mb-1 block">Globális VRAM Limit (MB)</label>
-                                <input id="cfg-vram-limit" type="number" class="w-full bg-[#161b22] border border-gray-700 rounded p-2 text-sm text-gray-200">
-                            </div>
-                        </div>
-                    </div>
-<<<<<<< HEAD
-=======
-
->>>>>>> d3e372da30590eab253bed78f91e2eca3a01a21e
-                    <div id="tab-slots" class="tab-pane hidden space-y-4">
-                        <h3 class="text-xs font-bold text-emerald-500 uppercase tracking-widest border-b border-emerald-900/30 pb-2">Aktív GGUF Slotok</h3>
-                        <div id="slot-container" class="space-y-3"></div>
-                    </div>
-<<<<<<< HEAD
-=======
-
->>>>>>> d3e372da30590eab253bed78f91e2eca3a01a21e
-                    <div id="tab-rag" class="tab-pane hidden space-y-6">
-                        <h3 class="text-xs font-bold text-purple-500 uppercase tracking-widest border-b border-purple-900/30 pb-2">Hosszútávú Memória</h3>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="text-[10px] text-gray-500 uppercase mb-1 block">Context Window (Token)</label>
-                                <input id="cfg-window" type="number" class="w-full bg-[#161b22] border border-gray-700 rounded p-2 text-sm text-gray-200">
-                            </div>
-                            <div>
-                                <label class="text-[10px] text-gray-500 uppercase mb-1 block">Max Retrieval Chunks</label>
-                                <input id="cfg-chunks" type="number" class="w-full bg-[#161b22] border border-gray-700 rounded p-2 text-sm text-gray-200">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-<<<<<<< HEAD
-=======
-
->>>>>>> d3e372da30590eab253bed78f91e2eca3a01a21e
-            <div class="p-4 border-t border-gray-800 bg-[#161b22] flex justify-between items-center">
-                <span id="save-status" class="text-[9px] text-gray-500 italic uppercase tracking-tighter">Készen áll a szinkronizációra.</span>
-                <div class="flex gap-2">
-                    <button onclick="toggleSettings()" class="px-4 py-2 text-xs text-gray-400 hover:text-white transition-colors font-mono">CANCEL</button>
-<<<<<<< HEAD
-                    <button onclick="saveAllSettings()" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded text-xs font-bold text-white transition-all shadow-lg shadow-blue-900/40 font-mono">SYNC TO SQL</button>
-=======
-                    <button onclick="saveAllSettings()" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded text-xs font-bold text-white transition-all shadow-lg shadow-blue-900/40 font-mono">
-                        SYNC TO SQL
-                    </button>
->>>>>>> d3e372da30590eab253bed78f91e2eca3a01a21e
-                </div>
+            <div class="flex-grow p-6 overflow-y-auto" id="settings-content">
+                <p class="text-gray-500 text-sm italic">Adatok lekérése a Kerneltől...</p>
             </div>
         </div>
     </div>
 
     <script>
-<<<<<<< HEAD
-        let currentChatId = "dev_room_001";
-        let cachedConfig = null;
+        let currentChatId = "chat_" + Date.now();
+        let isProcessing = false;
 
-        // Inicializálás
-        window.onload = () => {
-            loadChatHistory();
-            addLog("SoulCore UI v2.0 betöltve.");
-        };
+        async function updateStats() {
+            try {
+                const res = await fetch('/status');
+                const data = await res.json();
+                if (data.hardware && data.hardware.length > 0) {
+                    const gpu = data.hardware[0];
+                    document.getElementById('gpu-stats').innerHTML = `
+                        <span class="text-blue-500">GPU:</span> ${gpu.temp} | 
+                        <span class="text-blue-500">VRAM:</span> ${gpu.vram_used_mb}MB / ${gpu.vram_total_mb}MB (${gpu.vram_usage_pct}%) | 
+                        <span class="text-blue-500">LOAD:</span> ${gpu.gpu_load_pct}%`;
+                }
+                document.getElementById('kernel-uptime').innerText = `Uptime: ${data.kernel.uptime}s`;
+            } catch (e) {}
+        }
 
         async function loadChatHistory() {
-            try {
-                const res = await fetch('/chats/list');
-                const chats = await res.json();
-                const container = document.getElementById('chat-history-list');
-                container.innerHTML = "";
-                
-                if (chats.length === 0) {
-                    container.innerHTML = '<div class="text-[10px] text-gray-700 p-4 italic text-center">Nincsenek előzmények.</div>';
-                    return;
-                }
-
-                chats.forEach(chat => {
-                    const isActive = chat.chat_id === currentChatId ? 'active' : '';
-                    container.innerHTML += `
-                        <button onclick="loadChat('${chat.chat_id}')" 
-                            class="chat-item w-full text-left p-3 rounded-lg text-xs hover:bg-[#1c2128] transition-all truncate group flex items-center gap-2 ${isActive}">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 opacity-40" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-                            </svg>
-                            <span class="flex-grow truncate">${chat.title || 'Névtelen csevegés'}</span>
-                        </button>`;
-                });
-            } catch (e) { console.error("History hiba:", e); }
-        }
-
-        async function loadChat(chatId) {
-            currentChatId = chatId;
-            const chatBox = document.getElementById('chat-box');
-            chatBox.innerHTML = '<div class="text-center text-gray-600 font-mono text-[10px] animate-pulse">ADATFOLYAM LEHÍVÁSA...</div>';
-            
-            try {
-                const res = await fetch(`/chats/history/${chatId}`);
-                const history = await res.json();
-                chatBox.innerHTML = "";
-                history.forEach(msg => renderMessage(msg.role, msg.content));
-                loadChatHistory(); // Frissíti a kijelölést a listában
-                addLog(`Chat betöltve: ${chatId}`);
-            } catch (e) { addLog("Hiba a csevegés betöltésekor!"); }
-        }
-
-        function renderMessage(role, content) {
-            const chatBox = document.getElementById('chat-box');
-            if (role === 'user') {
-                chatBox.innerHTML += `<div class="flex justify-end mb-4"><div class="bg-blue-600 text-white p-3 px-5 rounded-2xl max-w-xl text-sm shadow-lg">${content}</div></div>`;
-            } else if (role === 'assistant') {
-                chatBox.innerHTML += `
-                    <div class="mb-6">
-                        <div class="flex items-center gap-2 mb-1 px-1 font-mono">
-                            <span class="text-[9px] text-blue-500 font-bold uppercase tracking-widest">KÓPÉ</span>
-                        </div>
-                        <div class="bg-[#161b22] border border-gray-800 p-5 rounded-2xl max-w-3xl text-sm leading-relaxed shadow-sm text-gray-200 response-text border-l-4 border-l-blue-900">${content}</div>
-                    </div>`;
-            }
-            chatBox.scrollTop = chatBox.scrollHeight;
-=======
-        let cachedConfig = null;
-
-        function toggleSettings() {
-            const modal = document.getElementById('settings-modal');
-            modal.classList.toggle('hidden');
-            if(!modal.classList.contains('hidden')) loadSettings();
-        }
-
-        function showTab(tabId) {
-            document.querySelectorAll('.tab-pane').forEach(t => t.classList.add('hidden'));
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active', 'bg-blue-600'));
-            document.getElementById(tabId).classList.remove('hidden');
-            event.currentTarget.classList.add('active');
-        }
-
-        async function loadSettings() {
-            try {
-                const res = await fetch('/telemetry');
-                cachedConfig = await res.json();
-                
-                const { config, slots_info } = cachedConfig;
-                
-                document.getElementById('cfg-identity').value = config.project.identity;
-                document.getElementById('cfg-lang').value = config.project.user_lang;
-                document.getElementById('cfg-gpu-count').value = config.hardware.gpu_count;
-                document.getElementById('cfg-vram-limit').value = config.hardware.total_vram_limit_mb;
-                document.getElementById('cfg-window').value = config.rag_system.context.window_size;
-                document.getElementById('cfg-chunks').value = config.rag_system.context.max_chunks_per_query;
-
-                const container = document.getElementById('slot-container');
-                container.innerHTML = "";
-                Object.entries(slots_info).forEach(([name, slot]) => {
-                    container.innerHTML += `
-                        <div class="flex items-center justify-between p-3 bg-[#1c2128] border border-gray-800 rounded-lg group hover:border-blue-900 transition-all">
-                            <div class="flex flex-col">
-                                <span class="text-xs font-bold text-gray-300 capitalize">${name}</span>
-                                <span class="text-[8px] text-gray-500 font-mono opacity-50">${slot.filename}</span>
-                            </div>
-                            <div class="flex items-center gap-3">
-                                <span class="text-[9px] text-gray-600 font-mono italic">${slot.max_vram_mb} MB</span>
-                                <input type="checkbox" class="slot-toggle" data-slot="${name}" ${slot.enabled ? 'checked' : ''} 
-                                    style="width:18px; height:18px; accent-color:#2563eb;">
-                            </div>
-                        </div>`;
-                });
-                addLog(`Configuration pulled from SQL.`);
-            } catch (e) { console.error("Konfigurációs hiba:", e); }
-        }
-
-        async function saveAllSettings() {
-            const btn = event.currentTarget;
-            btn.innerText = "SAVING...";
-            btn.disabled = true;
-
-            const slotUpdates = {};
-            document.querySelectorAll('.slot-toggle').forEach(chk => {
-                const name = chk.dataset.slot;
-                // Megtartjuk az eredeti adatokat, csak az enabled-et írjuk felül
-                slotUpdates[name] = {
-                    ...cachedConfig.slots_info[name],
-                    enabled: chk.checked ? 1 : 0
-                };
-            });
-
-            const fullPayload = {
-                project: { identity: document.getElementById('cfg-identity').value, user_lang: document.getElementById('cfg-lang').value },
-                hardware: { gpu_count: parseInt(document.getElementById('cfg-gpu-count').value), total_vram_limit_mb: parseInt(document.getElementById('cfg-vram-limit').value) },
-                rag_system: { 
-                    ...cachedConfig.config.rag_system,
-                    context: { 
-                        window_size: parseInt(document.getElementById('cfg-window').value), 
-                        max_chunks_per_query: parseInt(document.getElementById('cfg-chunks').value) 
-                    }
-                },
-                slots: slotUpdates
-            };
-
-            try {
-                const res = await fetch('/settings/update_full', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify(fullPayload)
-                });
-
-                if(res.ok) {
-                    addLog("SQL Database synchronized successfully.");
-                    document.getElementById('save-status').innerText = "Változások mentve! Újraindítás szükséges.";
-                    setTimeout(() => toggleSettings(), 1000);
-                }
-            } catch (e) { addLog("FAILED to sync database!"); }
-            
-            btn.innerText = "SYNC TO SQL";
-            btn.disabled = false;
-        }
-
-        function addLog(msg) {
-            const logBox = document.getElementById('system-logs');
-            const time = new Date().toLocaleTimeString();
-            logBox.innerHTML += `<div class="log-line text-[9px]"><span class="text-gray-600">[${time}]</span> ${msg}</div>`;
-            logBox.scrollTop = logBox.scrollHeight;
-        }
-
-        async function restartKernel() {
-            if(confirm("Biztosan újraindítod a SoulCore Kernelt? (Ez megszakítja a folyamatokat)")) {
-                addLog("REBOOT COMMAND ISSUED...");
-                // Itt hívhatnánk egy restart végpontot, ha csinálunk
-                location.reload(); 
-            }
->>>>>>> d3e372da30590eab253bed78f91e2eca3a01a21e
+            const res = await fetch('/chats/list');
+            const chats = await res.json();
+            const list = document.getElementById('chat-history-list');
+            list.innerHTML = chats.map(c => `
+                <button onclick="loadChat('${c.chat_id}')" class="chat-item w-full text-left p-2 rounded text-[11px] hover:bg-gray-800 transition-all truncate ${c.chat_id === currentChatId ? 'active' : ''}">
+                    ● ${c.title || 'Munkamenet'}
+                </button>
+            `).join('');
         }
 
         async function sendMessage() {
+            if(isProcessing) return;
             const input = document.getElementById('user-input');
             const query = input.value.trim();
-            if (!query) return;
+            if(!query) return;
 
-<<<<<<< HEAD
             renderMessage('user', query);
             input.value = "";
-=======
-            const chatBox = document.getElementById('chat-box');
-            chatBox.innerHTML += `<div class="flex justify-end mb-4"><div class="bg-blue-600 text-white p-3 px-5 rounded-2xl max-w-xl text-sm shadow-lg">${query}</div></div>`;
-            input.value = "";
-            chatBox.scrollTop = chatBox.scrollHeight;
->>>>>>> d3e372da30590eab253bed78f91e2eca3a01a21e
+            isProcessing = true;
+            
+            // "Thinking" indikátor
+            const thinkingId = 'think_' + Date.now();
+            document.getElementById('chat-box').innerHTML += `<div id="${thinkingId}" class="thinking text-[10px] text-blue-900 font-mono italic">Kópé gondolkodik...</div>`;
 
             try {
                 const res = await fetch('/process', {
@@ -421,138 +143,55 @@
                     body: JSON.stringify({query: query, chat_id: currentChatId})
                 });
                 const data = await res.json();
-<<<<<<< HEAD
+                document.getElementById(thinkingId).remove();
                 renderMessage('assistant', data.response);
-                addLog(`Válasz érkezett (${data.metadata.time}s)`);
-                // Ha új chat volt, a válasz után frissítsük a listát az új cím miatt
-                loadChatHistory();
+                addLog(`Válasz érkezett: ${data.metadata.tokens || 0} token`);
             } catch (e) {
-                document.getElementById('chat-box').innerHTML += `<div class="text-red-500 text-[10px] text-center font-mono py-4">!!! KERNEL ERROR !!!</div>`;
-=======
+                addLog("ERROR: Kernel nem válaszol.");
+            } finally {
+                isProcessing = false;
+            }
+        }
 
-                chatBox.innerHTML += `
-                    <div class="mb-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
-                        <div class="flex items-center gap-2 mb-1 px-1 font-mono">
-                            <span class="text-[9px] text-blue-500 font-bold uppercase tracking-widest">${data.identity}</span>
-                            <span class="text-[8px] text-gray-600 italic">| runtime: ${data.metadata.time}s</span>
-                        </div>
-                        <div class="bg-[#161b22] border border-gray-800 p-5 rounded-2xl max-w-3xl text-sm leading-relaxed shadow-sm text-gray-200 response-text border-l-4 border-l-blue-900">${data.response}</div>
+        function renderMessage(role, content) {
+            const box = document.getElementById('chat-box');
+            const msg = document.createElement('div');
+            msg.className = role === 'user' ? 'flex justify-end mb-4' : 'mb-6';
+            
+            if (role === 'user') {
+                msg.innerHTML = `<div class="bg-blue-600/20 border border-blue-500/30 text-blue-100 p-3 px-5 rounded-2xl max-w-xl text-sm">${content}</div>`;
+            } else {
+                msg.innerHTML = `
+                    <div class="flex flex-col">
+                        <span class="text-[9px] text-blue-500 font-bold mb-1 ml-1 tracking-widest uppercase">Kópé</span>
+                        <div class="bg-[#161b22] border border-gray-800 p-4 rounded-2xl max-w-3xl text-sm text-gray-200 response-text shadow-sm border-l-2 border-l-blue-600">${content}</div>
                     </div>`;
-                addLog(`Processed query: ${query.substring(0,20)}...`);
-            } catch (e) {
-                chatBox.innerHTML += `<div class="text-red-500 text-[10px] text-center font-mono py-4">!!! CRITICAL KERNEL COMMUNICATION ERROR !!!</div>`;
->>>>>>> d3e372da30590eab253bed78f91e2eca3a01a21e
             }
-            chatBox.scrollTop = chatBox.scrollHeight;
-        }
-
-<<<<<<< HEAD
-        function newChat() {
-            currentChatId = "chat_" + Date.now();
-            document.getElementById('chat-box').innerHTML = '<div class="text-center text-gray-600 my-10 font-mono text-[10px] tracking-[0.3em] uppercase opacity-40">--- Új Szuverén Adatfolyam Megnyitva ---</div>';
-            addLog("Új munkamenet inicializálva.");
-            loadChatHistory();
-        }
-
-        // --- Alap UI funkciók ---
-        function toggleSettings() {
-            const modal = document.getElementById('settings-modal');
-            modal.classList.toggle('hidden');
-            if(!modal.classList.contains('hidden')) loadSettings();
-        }
-
-        function showTab(tabId) {
-            document.querySelectorAll('.tab-pane').forEach(t => t.classList.add('hidden'));
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active', 'bg-blue-600'));
-            document.getElementById(tabId).classList.remove('hidden');
-            event.currentTarget.classList.add('active');
-        }
-
-        async function loadSettings() {
-            try {
-                const res = await fetch('/telemetry');
-                cachedConfig = await res.json();
-                const { config, slots_info } = cachedConfig;
-                document.getElementById('cfg-identity').value = config.project.identity;
-                document.getElementById('cfg-lang').value = config.project.user_lang;
-                document.getElementById('cfg-gpu-count').value = config.hardware.gpu_count;
-                document.getElementById('cfg-vram-limit').value = config.hardware.total_vram_limit_mb;
-                document.getElementById('cfg-window').value = config.rag_system.context.window_size;
-                document.getElementById('cfg-chunks').value = config.rag_system.context.max_chunks_per_query;
-
-                const container = document.getElementById('slot-container');
-                container.innerHTML = "";
-                Object.entries(slots_info).forEach(([name, slot]) => {
-                    container.innerHTML += `
-                        <div class="flex items-center justify-between p-3 bg-[#1c2128] border border-gray-800 rounded-lg group hover:border-blue-900 transition-all">
-                            <div class="flex flex-col">
-                                <span class="text-xs font-bold text-gray-300 capitalize">${name}</span>
-                                <span class="text-[8px] text-gray-500 font-mono opacity-50">${slot.filename}</span>
-                            </div>
-                            <div class="flex items-center gap-3">
-                                <span class="text-[9px] text-gray-600 font-mono italic">${slot.max_vram_mb} MB</span>
-                                <input type="checkbox" class="slot-toggle" data-slot="${name}" ${slot.enabled ? 'checked' : ''} style="width:18px; height:18px; accent-color:#2563eb;">
-                            </div>
-                        </div>`;
-                });
-            } catch (e) { console.error("Konfigurációs hiba:", e); }
-        }
-
-        async function saveAllSettings() {
-            const btn = event.currentTarget;
-            btn.innerText = "SAVING...";
-            const slotUpdates = {};
-            document.querySelectorAll('.slot-toggle').forEach(chk => {
-                const name = chk.dataset.slot;
-                slotUpdates[name] = { ...cachedConfig.slots_info[name], enabled: chk.checked ? 1 : 0 };
-            });
-
-            const fullPayload = {
-                project: { identity: document.getElementById('cfg-identity').value, user_lang: document.getElementById('cfg-lang').value },
-                hardware: { gpu_count: parseInt(document.getElementById('cfg-gpu-count').value), total_vram_limit_mb: parseInt(document.getElementById('cfg-vram-limit').value) },
-                rag_system: { ...cachedConfig.config.rag_system, context: { window_size: parseInt(document.getElementById('cfg-window').value), max_chunks_per_query: parseInt(document.getElementById('cfg-chunks').value) } },
-                slots: slotUpdates
-            };
-
-            const res = await fetch('/settings/update_full', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(fullPayload) });
-            if(res.ok) {
-                addLog("Database synchronized.");
-                setTimeout(() => toggleSettings(), 1000);
-            }
-            btn.innerText = "SYNC TO SQL";
+            box.appendChild(msg);
+            box.scrollTop = box.scrollHeight;
         }
 
         function addLog(msg) {
-            const logBox = document.getElementById('system-logs');
+            const logs = document.getElementById('system-logs');
             const time = new Date().toLocaleTimeString();
-            logBox.innerHTML += `<div class="log-line text-[9px]"><span class="text-gray-600">[${time}]</span> ${msg}</div>`;
-            logBox.scrollTop = logBox.scrollHeight;
+            logs.innerHTML += `<div class="mb-1"><span class="text-gray-700">[${time}]</span> ${msg}</div>`;
+            logs.scrollTop = logs.scrollHeight;
         }
 
-=======
->>>>>>> d3e372da30590eab253bed78f91e2eca3a01a21e
-        async function updateStats() {
-            try {
-                const res = await fetch('/status');
-                const data = await res.json();
-                if (data.hardware && data.hardware.length > 0) {
-                    const gpu = data.hardware[0];
-<<<<<<< HEAD
-                    document.getElementById('gpu-stats').innerText = `TEMP: ${gpu.temp}°C | VRAM: ${gpu.vram_used} / ${gpu.vram_total} MB | LOAD: ${gpu.load}%`;
-=======
-                    document.getElementById('gpu-stats').innerText = 
-                        `TEMP: ${gpu.temp}°C | VRAM: ${gpu.vram_used} / ${gpu.vram_total} MB | LOAD: ${gpu.load}%`;
->>>>>>> d3e372da30590eab253bed78f91e2eca3a01a21e
-                }
-            } catch (e) {}
+        function newChat() {
+            currentChatId = "chat_" + Date.now();
+            document.getElementById('chat-box').innerHTML = "";
+            addLog("Új szuverén csatorna nyitva.");
+            loadChatHistory();
+        }
+
+        function toggleSettings() {
+            document.getElementById('settings-modal').classList.toggle('hidden');
         }
 
         document.getElementById('user-input').addEventListener('keypress', (e) => { if(e.key === 'Enter') sendMessage(); });
-        setInterval(updateStats, 5000);
-<<<<<<< HEAD
-=======
-        updateStats();
->>>>>>> d3e372da30590eab253bed78f91e2eca3a01a21e
+        setInterval(updateStats, 3000);
+        window.onload = () => { updateStats(); loadChatHistory(); };
     </script>
 </body>
 </html>

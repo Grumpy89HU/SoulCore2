@@ -1,238 +1,138 @@
 import os
 import logging
-import psutil  # Új függőség a telemetriához
-from fastapi import FastAPI, Request, HTTPException
-from fastapi.responses import JSONResponse, HTMLResponse, RedirectResponse
+import psutil
+import time
+from fastapi import FastAPI, Request, HTTPException, Depends
+from fastapi.responses import JSONResponse, HTMLResponse, RedirectResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from passlib.context import CryptContext
+from typing import Optional
 
-<<<<<<< HEAD
-# Naplózás beállítása
 logger = logging.getLogger("soulcore.web")
-
-# Biztonsági konfiguráció
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-_internal_core = None  # Globális referencia az Orchestratorhoz
+_internal_core = None 
 
 def integrate_web_interface(app: FastAPI):
-    """Regisztrálja a webes felület útvonalait és a logikát."""
+    """Regisztrálja a webes felület útvonalait és a kognitív motor összeköttetéseit."""
     
-    # Statikus fájlok kiszolgálása a GUI-hoz
+    # Statikus fájlok kiszolgálása
     if os.path.exists("web"):
-        app.mount("/gui", StaticFiles(directory="web"), name="gui")
-        # Biztosítjuk, hogy a statikus assetek is elérhetőek legyenek
         app.mount("/gui_static", StaticFiles(directory="web"), name="gui_static")
 
-    # --- Segédfüggvény a Core ellenőrzéséhez ---
     def check_core():
         if _internal_core is None:
-            raise HTTPException(status_code=503, detail="SoulCore Kernel nem elérhető.")
+            raise HTTPException(status_code=503, detail="SoulCore Kernel Offline")
         return _internal_core
 
-=======
-# Biztonsági konfiguráció
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-_internal_core = None # Globális referencia az Orchestratorhoz
-
-def integrate_web_interface(app: FastAPI):
-    """Regisztrálja a webes felület útvonalait és a logikát."""
-    
-    # Statikus fájlok kiszolgálása (a gui és gui_static szinonimák a biztonság kedvéért)
-    if os.path.exists("web"):
-        app.mount("/gui", StaticFiles(directory="web"), name="gui")
-        app.mount("/gui_static", StaticFiles(directory="web"), name="gui_static")
-
-    # --- Segédfüggvények (Auth) ---
-    def verify_password(plain_password, hashed_password):
-        return pwd_context.verify(plain_password, hashed_password)
-
-    def get_password_hash(password):
-        return pwd_context.hash(password)
-
->>>>>>> d3e372da30590eab253bed78f91e2eca3a01a21e
-    # --- Auth Végpontok ---
+    # --- AUTHENTICATION ---
     @app.get("/login", response_class=HTMLResponse)
     async def login_page():
-        login_path = "web/login.html"
-        if os.path.exists(login_path):
-            with open(login_path, "r", encoding="utf-8") as f:
-                return f.read()
-<<<<<<< HEAD
-        return "Login page missing. Please check 'web/login.html' path."
-=======
-        return "Login page (web/login.html) missing."
->>>>>>> d3e372da30590eab253bed78f91e2eca3a01a21e
+        path = "web/login.html"
+        if os.path.exists(path):
+            with open(path, "r", encoding="utf-8") as f: return f.read()
+        return "<h4>SoulCore Login Required</h4><form method='POST'><input name='username'><input type='password' name='password'><button>Enter</button></form>"
 
     @app.post("/login")
     async def login(request: Request):
-        data = await request.json()
-        username = data.get("username")
-        password = data.get("password")
-        
-<<<<<<< HEAD
-        # 1. Próbálkozás az adatbázis alapú azonosítással
-=======
-        # 1. Próbáljuk az SQL-ből (ha van már core és verify_user metódus)
->>>>>>> d3e372da30590eab253bed78f91e2eca3a01a21e
-        if _internal_core and hasattr(_internal_core.db, 'verify_user'):
-            if _internal_core.db.verify_user(username, password):
-                request.session["user"] = username
-                return {"status": "success"}
+        try:
+            data = await request.json()
+            username = data.get("username")
+            password = data.get("password")
+            
+            # DB alapú ellenőrzés prioritása
+            if _internal_core and hasattr(_internal_core.db, 'verify_user'):
+                if _internal_core.db.verify_user(username, password):
+                    request.session["user"] = username
+                    return {"status": "success"}
 
-<<<<<<< HEAD
-        # 2. Hardcoded fallback (Amnézia-gyilkos alapértelmezett)
-=======
-        # 2. Hard-fallback az első belépéshez (ha az SQL még üres)
->>>>>>> d3e372da30590eab253bed78f91e2eca3a01a21e
-        if username == "admin" and password == "soulcore":
-            request.session["user"] = username
-            return {"status": "success"}
-        
-        raise HTTPException(status_code=401, detail="Helytelen adatok")
+            # Szuverén Fallback
+            if username == "admin" and password == "soulcore":
+                request.session["user"] = "Grumpy"
+                return {"status": "success"}
+        except: pass
+        raise HTTPException(status_code=401, detail="Hozzáférés megtagadva")
 
     @app.get("/logout")
     async def logout(request: Request):
         request.session.clear()
         return RedirectResponse(url="/login")
 
-<<<<<<< HEAD
-    # --- Védett Végpontok (UI & API) ---
-    
-=======
-    # --- Védett Végpontok (UI) ---
->>>>>>> d3e372da30590eab253bed78f91e2eca3a01a21e
+    # --- API & CONTROL ---
     @app.get("/", response_class=HTMLResponse)
-    async def root_web_access(request: Request):
-        if "user" not in request.session:
-            return RedirectResponse(url="/login")
-<<<<<<< HEAD
-=======
-        
->>>>>>> d3e372da30590eab253bed78f91e2eca3a01a21e
-        index_path = "web/index.html"
-        if os.path.exists(index_path):
-            with open(index_path, "r", encoding="utf-8") as f:
-                return f.read()
-<<<<<<< HEAD
-        return "Index page missing. Check 'web/index.html'."
+    async def root(request: Request):
+        if "user" not in request.session: return RedirectResponse(url="/login")
+        path = "web/index.html"
+        if os.path.exists(path):
+            with open(path, "r", encoding="utf-8") as f: return f.read()
+        return "Main GUI missing in /web folder."
 
     @app.get("/chats/list")
     async def list_chats(request: Request):
-        if "user" not in request.session: raise HTTPException(status_code=403)
+        if "user" not in request.session: return []
         core = check_core()
-        try:
-            # Ha nincs még ilyen metódus, adjunk vissza üres listát hiba helyett
-            if hasattr(core.db, 'get_all_chat_sessions'):
-                chats = core.db.get_all_chat_sessions() 
-            else:
-                logger.warning("Database missing 'get_all_chat_sessions' method.")
-                chats = []
-            return JSONResponse(content=chats)
-        except Exception as e:
-            logger.error(f"Error listing chats: {e}")
-            return JSONResponse(content=[])
+        return core.db.get_all_chat_sessions() if hasattr(core.db, 'get_all_chat_sessions') else []
 
     @app.get("/chats/history/{chat_id}")
-    async def get_chat_history(chat_id: str, request: Request):
-        if "user" not in request.session: raise HTTPException(status_code=403)
+    async def get_history(chat_id: str, request: Request):
+        if "user" not in request.session: return []
         core = check_core()
-        history = core.db.get_chat_history(chat_id)
-        return JSONResponse(content=history)
-=======
-        return "Index page missing."
->>>>>>> d3e372da30590eab253bed78f91e2eca3a01a21e
+        return core.db.get_chat_history(chat_id)
 
-    # --- API Funkciók (Minden visszatért) ---
-    
     @app.post("/process")
-    async def process_request(request: Request):
-<<<<<<< HEAD
+    async def process(request: Request):
         if "user" not in request.session: raise HTTPException(status_code=403)
         core = check_core()
         data = await request.json()
         
-        # Kinyerjük a session-ben lévő júzert (pl. admin vagy Grumpy)
-        current_user = request.session.get("user")
-        
-        # Orchestrator hívás - most már minden paraméterrel
+        # Pipeline indítása
         result = await core.process_pipeline(
-            user_query=data.get("query"), 
-            chat_id=data.get("chat_id", "default_chat"),
-            user_id=current_user  # Átadjuk a session-ből a júzert!
+            user_query=data.get("query"),
+            chat_id=data.get("chat_id", "default"),
+            user_id=request.session.get("user")
         )
         return JSONResponse(content=result)
 
     @app.get("/status")
-    async def get_system_status(request: Request):
-        """Hardware és Kernel telemetria."""
-        if "user" not in request.session: raise HTTPException(status_code=403)
+    async def get_status(request: Request):
+        if "user" not in request.session: return {}
         core = check_core()
         
-        # Dinamikus fallback, ha az Orchestratorban nincs implementálva
-        if hasattr(core, 'get_hardware_stats'):
-            stats = core.get_hardware_stats()
-        else:
-            stats = {
-                "cpu_usage": psutil.cpu_percent(),
-                "ram_usage": psutil.virtual_memory().percent,
-                "status": "online (limited telemetry)"
+        # Monitor adatok lehívása
+        hw_stats = core.get_hardware_stats() if hasattr(core, 'get_hardware_stats') else {}
+        
+        return {
+            "hardware": hw_stats,
+            "kernel": {
+                "uptime": round(time.time() - core.start_time, 1),
+                "active_slots": len(core.slots)
+            },
+            "system": {
+                "cpu": psutil.cpu_percent(),
+                "ram": psutil.virtual_memory().percent
             }
-        return JSONResponse(content=stats)
+        }
 
     @app.get("/telemetry")
-    async def get_full_config(request: Request):
-        if "user" not in request.session: raise HTTPException(status_code=403)
+    async def get_telemetry(request: Request):
+        if "user" not in request.session: return {}
         core = check_core()
-        config_data = {
-            "config": getattr(core, 'config', {}),
-            "slots_info": core.get_slots_status() if hasattr(core, 'get_slots_status') else "N/A"
+        return {
+            "config": core.config if hasattr(core, 'config') else {},
+            "slots_info": core.get_slots_status() if hasattr(core, 'get_slots_status') else {}
         }
-        return JSONResponse(content=config_data)
 
     @app.post("/settings/update_full")
-    async def update_full_settings(request: Request):
-        if "user" not in request.session: raise HTTPException(status_code=403)
+    async def update_settings(request: Request):
+        if "user" not in request.session: return {"status": "denied"}
         core = check_core()
         data = await request.json()
         if hasattr(core, 'update_system_config'):
             core.update_system_config(data)
             return {"status": "ok"}
-        raise HTTPException(status_code=501, detail="Update method not implemented")
+        return {"status": "not_implemented"}
 
     return app
 
 def set_core_reference(instance):
-=======
-        """A webfelületről érkező kérdések közvetlen kiszolgálása."""
-        if "user" not in request.session:
-            raise HTTPException(status_code=403)
-        if not _internal_core:
-            raise HTTPException(status_code=503, detail="Kernel initializing...")
-            
-        data = await request.json()
-        # Meghívjuk az Orchestrator pipeline-ját
-        result = await _internal_core.process_pipeline(data.get("query"))
-        return JSONResponse(content=result)
-
-    @app.post("/settings/update")
-    async def update_settings(request: Request):
-        """Beállítások mentése az SQL-be."""
-        if "user" not in request.session: raise HTTPException(status_code=403)
-        if not _internal_core: raise HTTPException(status_code=503)
-        
-        data = await request.json()
-        # Itt az SQL-be mentjük az adatokat (feltételezve a set_config vagy update_full_config metódust)
-        try:
-            for key, value in data.items():
-                _internal_core.db.set_config(key, value)
-            return {"status": "saved"}
-        except Exception as e:
-            return JSONResponse(status_code=500, content={"error": str(e)})
-
-    return app
-
-def set_core_reference(instance):
-    """Szinkronizáció a main.py-ból a lifespan alatt."""
->>>>>>> d3e372da30590eab253bed78f91e2eca3a01a21e
     global _internal_core
     _internal_core = instance

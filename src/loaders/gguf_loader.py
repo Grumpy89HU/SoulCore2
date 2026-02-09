@@ -49,7 +49,7 @@ class GGUFSlot(BaseSlot):
             self.model = Llama(
                 model_path=self.full_path,
                 n_gpu_layers=-1, 
-                n_ctx=self.config.get("max_vram_mb", 2048), # Használjuk a konfigból a limitet
+                n_ctx=self.config.get("n_ctx", 2048), # MOST MÁR A TOKEN LIMITET HASZNÁLJUK!
                 verbose=False
             )
             
