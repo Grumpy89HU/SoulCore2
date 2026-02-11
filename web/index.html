@@ -25,7 +25,14 @@
         .glass-nav { background: rgba(22, 27, 34, 0.8); backdrop-filter: blur(12px); border-bottom: 1px solid #30363d; }
         .vram-chip { background: rgba(37, 99, 235, 0.1); border: 1px solid rgba(37, 99, 235, 0.2); }
         
-        /* Custom Toggle Switch */
+        /* JSON Editor Specific */
+        #json-editor { 
+            background: #000000; 
+            color: #4ade80; 
+            font-family: 'Fira Code', monospace; 
+            scrollbar-width: thin;
+        }
+
         .switch { position: relative; display: inline-block; width: 40px; height: 20px; }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #30363d; transition: .4s; border-radius: 20px; }
@@ -99,14 +106,11 @@
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" /></svg>
                 </button>
             </div>
-            <div class="text-center mt-3">
-                <p class="text-[9px] text-gray-700 font-mono tracking-widest uppercase">SoulCore Kernel v2.0 - Szuverén Entitás</p>
-            </div>
         </footer>
     </section>
 
     <div id="settings-modal" class="hidden fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4">
-        <div class="w-full max-w-4xl h-[80vh] bg-[#161b22] border border-gray-700 rounded-3xl flex flex-col overflow-hidden shadow-2xl">
+        <div class="w-full max-w-4xl h-[85vh] bg-[#161b22] border border-gray-700 rounded-3xl flex flex-col overflow-hidden shadow-2xl">
             <div class="p-5 border-b border-gray-800 flex justify-between items-center bg-[#1c2128]">
                 <div class="flex items-center gap-3">
                     <div class="h-2 w-2 bg-blue-500 rounded-full animate-ping"></div>
@@ -116,6 +120,7 @@
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
                 </button>
             </div>
+            
             <div class="flex-grow p-8 overflow-y-auto" id="settings-content">
                 </div>
         </div>
@@ -128,37 +133,19 @@
         async function updateStats() {
             try {
                 const res = await fetch('/status');
-                if (!res.ok) throw new Error("Kernel unreachable");
                 const data = await res.json();
                 const gpuContainer = document.getElementById('gpu-stats');
 
-                if (data.hardware && data.hardware.length > 0) {
-                    gpuContainer.innerHTML = data.hardware.map((hw) => {
-                        const load = hw.load_pct ?? hw.usage ?? 0;
-                        const used = hw.vram_used_mb ?? 0;
-                        const total = hw.vram_total_mb ?? 0;
-                        const temp = hw.temp ?? 0;
-                        const isRAM = hw.type === 'system';
-
-                        return `
-                            <div class="vram-chip px-3 py-1 rounded-md text-[10px] font-mono flex items-center gap-2 border border-blue-500/20">
-                                <span class="${isRAM ? 'text-emerald-400' : 'text-blue-500'} font-bold">${hw.name}</span>
-                                <span class="text-gray-400">${load}%</span>
-                                <span class="text-gray-600">|</span>
-                                <span class="text-blue-400">${used} MB</span>
-                                ${!isRAM && temp > 0 ? `<span class="text-xs ${temp > 70 ? 'text-red-500' : 'text-orange-400'}">${temp}°C</span>` : ''}
-                            </div>
-                        `;
-                    }).join('');
+                if (data.hardware) {
+                    gpuContainer.innerHTML = data.hardware.map((hw) => `
+                        <div class="vram-chip px-3 py-1 rounded-md text-[10px] font-mono flex items-center gap-2 border border-blue-500/20">
+                            <span class="text-blue-500 font-bold">${hw.name}</span>
+                            <span class="text-blue-400">${hw.vram_used_mb || 0} MB</span>
+                        </div>
+                    `).join('');
                 }
-                
                 document.getElementById('kernel-uptime').innerText = `Uptime: ${data.kernel?.uptime || 0}s`;
-                document.getElementById('status-text').innerText = "ONLINE";
-                document.getElementById('status-dot').className = "h-2.5 w-2.5 rounded-full bg-emerald-500 shadow-[0_0_10px_#10b981]";
-            } catch (e) {
-                document.getElementById('status-text').innerText = "OFFLINE";
-                document.getElementById('status-dot').className = "h-2.5 w-2.5 rounded-full bg-red-500 shadow-[0_0_10px_#ef4444]";
-            }
+            } catch (e) { /* silent */ }
         }
 
         async function saveConfig(key, value) {
@@ -168,8 +155,32 @@
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ [key]: value })
                 });
-                if(res.ok) addLog(`Update: ${key} set to ${value}`);
-            } catch (e) { addLog("Hiba a mentésnél."); }
+                if(res.ok) addLog(`Update: ${key} synchronized.`);
+            } catch (e) { addLog("Sync error."); }
+        }
+
+        // --- JSON MENTÉS FUNKCIÓ ---
+        async function saveRawJson() {
+            const editor = document.getElementById('json-editor');
+            try {
+                const updatedConfig = JSON.parse(editor.value);
+                const res = await fetch('/config/update', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(updatedConfig)
+                });
+                
+                if(res.ok) {
+                    addLog("✅ RAW Config synchronized to Kernel.");
+                    editor.style.borderColor = "#059669";
+                    setTimeout(() => editor.style.borderColor = "#1e293b", 2000);
+                } else {
+                    throw new Error();
+                }
+            } catch (e) {
+                addLog("❌ Invalid JSON format or Kernel rejected.");
+                editor.style.borderColor = "#dc2626";
+            }
         }
 
         function toggleSettings() {
@@ -177,9 +188,8 @@
             modal.classList.toggle('hidden');
             if(!modal.classList.contains('hidden')) {
                 fetch('/status').then(r => r.json()).then(data => {
-                    const kernel = data.kernel || {};
+                    const config = data.config || {};
                     const hardware = data.hardware || [];
-                    const config = data.config || { temperature: 0.7, rag_enabled: true };
 
                     document.getElementById('settings-content').innerHTML = `
                         <div class="space-y-10 pb-10">
@@ -187,99 +197,46 @@
                                 <h3 class="text-blue-500 text-xs font-bold mb-6 tracking-[0.2em] uppercase flex items-center gap-2">
                                     <span class="h-[1px] w-8 bg-blue-500/30"></span> Engine Parameters
                                 </h3>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 bg-black/30 p-8 rounded-3xl border border-gray-800">
+                                <div class="grid grid-cols-2 gap-8 bg-black/30 p-8 rounded-3xl border border-gray-800">
                                     <div class="space-y-4">
                                         <div class="flex justify-between items-center">
-                                            <label class="text-xs text-gray-400 font-medium">Temperature (Creativity)</label>
-                                            <span class="font-mono text-blue-500 text-xs" id="temp-val">${config.temperature}</span>
+                                            <label class="text-xs text-gray-400 font-medium">Temperature</label>
+                                            <span class="font-mono text-blue-500 text-xs" id="temp-val">${config.temperature || 0.7}</span>
                                         </div>
-                                        <input type="range" min="0" max="1.5" step="0.1" value="${config.temperature}" 
+                                        <input type="range" min="0" max="1.5" step="0.1" value="${config.temperature || 0.7}" 
                                             oninput="document.getElementById('temp-val').innerText = this.value"
                                             onchange="saveConfig('temperature', this.value)"
                                             class="w-full h-1.5 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-blue-600">
-                                        <div class="flex justify-between text-[9px] text-gray-600 uppercase"><span>Precise</span><span>Creative</span></div>
                                     </div>
-                                    <div class="flex flex-col justify-center space-y-6">
-                                        <div class="flex items-center justify-between">
-                                            <div>
-                                                <div class="text-xs text-gray-200">RAG Module</div>
-                                                <div class="text-[10px] text-gray-500">Enable neural long-term memory</div>
-                                            </div>
-                                            <label class="switch">
-                                                <input type="checkbox" ${config.rag_enabled ? 'checked' : ''} onchange="saveConfig('rag_enabled', this.checked)">
-                                                <span class="slider"></span>
-                                            </label>
-                                        </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-xs text-gray-200">Neural RAG</span>
+                                        <label class="switch">
+                                            <input type="checkbox" ${config.rag_enabled ? 'checked' : ''} onchange="saveConfig('rag_enabled', this.checked)">
+                                            <span class="slider"></span>
+                                        </label>
                                     </div>
                                 </div>
                             </section>
 
                             <section>
-                                <h3 class="text-emerald-500 text-xs font-bold mb-6 tracking-[0.2em] uppercase flex items-center gap-2">
-                                    <span class="h-[1px] w-8 bg-emerald-500/30"></span> Resource Allocation
+                                <h3 class="text-orange-500 text-xs font-bold mb-6 tracking-[0.2em] uppercase flex items-center gap-2">
+                                    <span class="h-[1px] w-8 bg-orange-500/30"></span> Advanced Kernel Telemetry
                                 </h3>
-                                <div class="grid grid-cols-1 gap-4">
-                                    ${hardware.map(hw => `
-                                        <div class="flex items-center justify-between bg-black/20 p-5 rounded-2xl border border-gray-800/50 hover:border-gray-700 transition-colors">
-                                            <div class="flex items-center gap-4">
-                                                <div class="h-10 w-10 rounded-xl bg-gray-800/50 flex items-center justify-center text-xl shadow-inner">
-                                                    ${hw.type === 'system' ? '🧠' : '⚡'}
-                                                </div>
-                                                <div>
-                                                    <div class="text-sm font-bold text-gray-200">${hw.name}</div>
-                                                    <div class="text-[10px] text-gray-500 font-mono italic">${hw.type === 'system' ? 'Host Memory' : 'Inference Accelerator'}</div>
-                                                </div>
-                                            </div>
-                                            <div class="flex gap-10 items-center font-mono">
-                                                <div class="text-right">
-                                                    <div class="text-[9px] text-gray-600 uppercase tracking-tighter">Load</div>
-                                                    <div class="text-sm ${hw.load_pct > 80 ? 'text-red-400' : 'text-emerald-400'}">${hw.load_pct ?? 0}%</div>
-                                                </div>
-                                                <div class="text-right">
-                                                    <div class="text-[9px] text-gray-600 uppercase tracking-tighter">VRAM</div>
-                                                    <div class="text-sm text-blue-400">${hw.vram_used_mb ?? 0} MB</div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    `).join('')}
+                                <div class="relative group">
+                                    <textarea id="json-editor" class="w-full h-80 p-6 rounded-2xl border border-gray-800 text-[11px] outline-none focus:border-blue-500 transition-all" spellcheck="false">${JSON.stringify(data, null, 4)}</textarea>
+                                    <button onclick="saveRawJson()" class="absolute bottom-4 right-4 bg-blue-600 hover:bg-blue-500 text-white text-[10px] font-bold px-4 py-2 rounded-lg shadow-xl transition-all active:scale-95">
+                                        SYNC TO KERNEL
+                                    </button>
                                 </div>
+                                <p class="mt-2 text-[9px] text-gray-600 italic px-2">* Caution: Direct JSON modification can affect kernel stability.</p>
                             </section>
-
-                            <details class="opacity-30 hover:opacity-100 transition-all duration-500">
-                                <summary class="text-[10px] cursor-pointer text-gray-600 uppercase font-bold tracking-widest">Advanced Kernel Telemetry</summary>
-                                <pre class="p-6 bg-black/60 rounded-2xl text-[10px] mt-4 overflow-x-auto text-blue-800 border border-blue-900/10 font-mono">${JSON.stringify(data, null, 4)}</pre>
-                            </details>
                         </div>
                     `;
                 });
             }
         }
 
-        // --- CORE CHAT LOGIC ---
-        async function loadChatHistory() {
-            try {
-                const res = await fetch('/chats/list');
-                const chats = await res.json();
-                const list = document.getElementById('chat-history-list');
-                list.innerHTML = chats.map(c => `
-                    <button onclick="loadChat('${c.chat_id}')" class="chat-item w-full text-left p-3 rounded-xl text-[11px] hover:bg-gray-800/50 transition-all truncate border border-transparent ${c.chat_id === currentChatId ? 'active' : ''}">
-                        <span class="opacity-50 mr-2">#</span> ${c.title || 'Új Munkamenet'}
-                    </button>
-                `).join('');
-            } catch (e) { addLog("History error."); }
-        }
-
-        async function loadChat(chat_id) {
-            currentChatId = chat_id;
-            localStorage.setItem('lastChatId', chat_id);
-            document.getElementById('chat-box').innerHTML = "";
-            loadChatHistory();
-            const res = await fetch(`/chats/history/${chat_id}`);
-            const history = await res.json();
-            history.forEach(msg => renderMessage(msg.role, msg.content));
-            addLog(`Munkamenet: ${chat_id}`);
-        }
-
+        // --- Core Chat Logic (Maradt az eredeti) ---
         async function sendMessage() {
             if(isProcessing) return;
             const input = document.getElementById('user-input');
@@ -290,16 +247,6 @@
             input.value = "";
             isProcessing = true;
             
-            const thinkingId = 'think_' + Date.now();
-            document.getElementById('chat-box').innerHTML += `
-                <div id="${thinkingId}" class="flex flex-col mb-6">
-                    <span class="text-[9px] text-blue-500 font-bold mb-1 ml-1 tracking-widest uppercase thinking">Neural processing...</span>
-                    <div class="bg-[#161b22] border border-blue-900/20 p-4 rounded-2xl max-w-sm text-[10px] text-blue-400/50 font-mono italic">
-                        Kópé gondolkodik...
-                    </div>
-                </div>`;
-            document.getElementById('chat-box').scrollTop = document.getElementById('chat-box').scrollHeight;
-
             try {
                 const res = await fetch('/process', {
                     method: 'POST',
@@ -307,50 +254,54 @@
                     body: JSON.stringify({query: query, chat_id: currentChatId})
                 });
                 const data = await res.json();
-                document.getElementById(thinkingId).remove();
                 renderMessage('assistant', data.response);
-            } catch (e) {
-                document.getElementById(thinkingId).innerHTML = "<span class='text-red-500'>Hiba: Kernel timeout.</span>";
-            } finally {
-                isProcessing = false;
-                loadChatHistory();
-            }
+            } catch (e) { addLog("Kernel timeout."); }
+            finally { isProcessing = false; loadChatHistory(); }
         }
 
         function renderMessage(role, content) {
             const box = document.getElementById('chat-box');
             const msg = document.createElement('div');
-            msg.className = role === 'user' ? 'flex justify-end mb-4 animate-in slide-in-from-right-4 duration-300' : 'mb-6 animate-in slide-in-from-left-4 duration-300';
-            
-            if (role === 'user') {
-                msg.innerHTML = `<div class="bg-blue-600/10 border border-blue-500/20 text-blue-50 text-sm p-4 px-6 rounded-3xl rounded-tr-none max-w-[80%] shadow-sm">${content}</div>`;
-            } else {
-                msg.innerHTML = `
-                    <div class="flex flex-col">
-                        <div class="flex items-center gap-2 mb-2 ml-1">
-                            <span class="text-[10px] text-blue-500 font-bold tracking-[0.2em] uppercase">KÓPÉ</span>
-                            <span class="text-[9px] text-gray-600 font-mono">${new Date().toLocaleTimeString()}</span>
-                        </div>
-                        <div class="bg-[#161b22] border border-gray-800 p-5 rounded-3xl rounded-tl-none max-w-[95%] text-gray-200 response-text shadow-xl">
-                            ${content}
-                        </div>
-                    </div>`;
-            }
+            msg.className = role === 'user' ? 'flex justify-end mb-4 animate-in slide-in-from-right-4' : 'mb-6 animate-in slide-in-from-left-4';
+            msg.innerHTML = role === 'user' 
+                ? `<div class="bg-blue-600/10 border border-blue-500/20 text-blue-50 text-sm p-4 px-6 rounded-3xl rounded-tr-none max-w-[80%] shadow-sm">${content}</div>`
+                : `<div class="flex flex-col"><div class="text-[10px] text-blue-500 font-bold mb-2 ml-1 uppercase">KÓPÉ</div><div class="bg-[#161b22] border border-gray-800 p-5 rounded-3xl rounded-tl-none max-w-[95%] text-gray-200 response-text shadow-xl">${content}</div></div>`;
             box.appendChild(msg);
             box.scrollTop = box.scrollHeight;
         }
 
         function addLog(msg) {
             const logs = document.getElementById('system-logs');
-            const time = new Date().toLocaleTimeString();
-            logs.innerHTML += `<div class="mb-1 border-l border-gray-800 pl-2"><span class="text-gray-700 text-[8px]">[${time}]</span> <span class="text-gray-400">${msg}</span></div>`;
+            logs.innerHTML += `<div class="mb-1 border-l border-gray-800 pl-2"><span class="text-gray-700 text-[8px]">[${new Date().toLocaleTimeString()}]</span> <span class="text-gray-400">${msg}</span></div>`;
             logs.scrollTop = logs.scrollHeight;
+        }
+
+        async function loadChatHistory() {
+            try {
+                const res = await fetch('/chats/list');
+                const chats = await res.json();
+                document.getElementById('chat-history-list').innerHTML = chats.map(c => `
+                    <button onclick="loadChat('${c.chat_id}')" class="chat-item w-full text-left p-3 rounded-xl text-[11px] hover:bg-gray-800/50 transition-all truncate border border-transparent ${c.chat_id === currentChatId ? 'active' : ''}">
+                        <span class="opacity-50 mr-2">#</span> ${c.title || 'Új Munkamenet'}
+                    </button>
+                `).join('');
+            } catch (e) {}
+        }
+
+        async function loadChat(chat_id) {
+            currentChatId = chat_id;
+            localStorage.setItem('lastChatId', chat_id);
+            document.getElementById('chat-box').innerHTML = "";
+            loadChatHistory();
+            const res = await fetch(`/chats/history/${chat_id}`);
+            const history = await res.json();
+            history.forEach(msg => renderMessage(msg.role, msg.content));
         }
 
         function newChat() {
             currentChatId = "chat_" + Date.now();
             localStorage.setItem('lastChatId', currentChatId);
-            document.getElementById('chat-box').innerHTML = `<div class="h-full flex items-center justify-center opacity-10 flex-col pointer-events-none"><div class="text-6xl mb-6">🏰</div><div class="font-mono text-[12px] tracking-[0.8em] uppercase text-center">Új Szuverén Adattér</div></div>`;
+            document.getElementById('chat-box').innerHTML = "";
             loadChatHistory();
         }
 

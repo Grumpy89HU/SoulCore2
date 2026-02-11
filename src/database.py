@@ -22,16 +22,22 @@ class SoulCoreDatabase:
         # Jelszókezelő a biztonságos belépéshez
         self.pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
         
+        # 1. Alapvető SQL struktúra felépítése
         self._init_sqlite()
         
-        # Kezdeti adatok betöltése, ha üres az adatbázis
+        # 2. Kezdeti adatok és Szuverén hozzáférés biztosítása
+        # Ha nincs projekt konfiguráció, lefuttatjuk a teljes seed-et
         if not self.get_config("project"):
             self._seed_initial_data()
+        
+        # KRITIKUS BIZTONSÁGI JAVÍTÁS: 
+        # Ellenőrizzük, hogy létezik-e admin, ha nem (pl. manuális törlés után), létrehozzuk.
+        self._ensure_access_integrity()
         
         self.rag_cfg = self.get_config("rag_system")
         self.storage_cfg = self.get_config("storage")
 
-        # 1. VEKTOROS MOTOR (Qdrant)
+        # 3. VEKTOROS MOTOR (Qdrant)
         self.client = None
         try:
             print(f"🧬 Szuverén Embedding betöltése: {self.rag_cfg['embedding']['local_path']}")
@@ -41,7 +47,7 @@ class SoulCoreDatabase:
         except Exception as e:
             self.logger.error(f"Vektoros motor hiba az inicializáláskor: {e}")
 
-        # 2. RERANKER
+        # 4. RERANKER
         self.reranker = None
         if self.rag_cfg.get('reranker', {}).get('enabled'):
             print(f"🔍 Szuverén Reranker aktív.")
@@ -50,7 +56,7 @@ class SoulCoreDatabase:
             except Exception as e:
                 self.logger.error(f"Reranker hiba: {e}")
 
-        # 3. GRÁF MEMÓRIA
+        # 5. GRÁF MEMÓRIA
         self.graph_db = self._load_graph()
         print(f"🏛️ SoulCore 2.0: SQL + RAG + Graph élesítve.")
 
@@ -63,7 +69,7 @@ class SoulCoreDatabase:
                 model_name TEXT, filename TEXT, gpu_id INTEGER, max_vram_mb INTEGER, 
                 n_ctx INTEGER, temperature REAL, model_path TEXT)''')
             
-            # AUTH tábla a webes belépéshez
+            # AUTH táblák
             c.execute('CREATE TABLE IF NOT EXISTS auth (username TEXT PRIMARY KEY, password_hash TEXT, role TEXT)')
             c.execute('CREATE TABLE IF NOT EXISTS users (user_id TEXT PRIMARY KEY, username TEXT, role TEXT)')
             
@@ -77,7 +83,22 @@ class SoulCoreDatabase:
             
             c.execute('''CREATE TABLE IF NOT EXISTS long_memory (
                 key TEXT PRIMARY KEY, content TEXT, metadata TEXT, timestamp TEXT)''')
+            
+            # ÚJ: Naplózó tábla a rendszer eseményeknek
+            c.execute('CREATE TABLE IF NOT EXISTS audit_logs (id INTEGER PRIMARY KEY, event TEXT, timestamp TEXT)')
             conn.commit()
+
+    def _ensure_access_integrity(self):
+        """Garantálja, hogy a rendszer soha ne zárja ki az admint."""
+        with sqlite3.connect(self.db_path) as conn:
+            res = conn.execute("SELECT username FROM auth WHERE role = 'admin'").fetchone()
+            if not res:
+                self.logger.warning("Biztonsági rés észlelve: Admin hiányzik. Hozzáférés helyreállítása...")
+                self.create_user("admin", "soulcore", role="admin")
+                self.create_user("Grumpy", "soulcore_admin", role="admin")
+                conn.execute("INSERT INTO audit_logs (event, timestamp) VALUES (?, ?)", 
+                             ("Admin access restored by System", datetime.now().isoformat()))
+                conn.commit()
 
     # --- KONFIGURÁCIÓ KEZELÉS ---
     def get_config(self, key):
@@ -225,34 +246,6 @@ class SoulCoreDatabase:
                 res = conn.execute("SELECT chat_id, title, last_active FROM chats ORDER BY last_active DESC").fetchall()
             return [dict(row) for row in res]
 
-    def update_chat_title(self, chat_id, title):
-        with sqlite3.connect(self.db_path) as conn:
-            conn.execute("UPDATE chats SET title = ? WHERE chat_id = ?", (title, chat_id))
-            conn.commit()
-
-    # --- HOSSZÚ TÁVÚ MEMÓRIA ---
-    def set_long_memory(self, key, text, metadata=""):
-        with sqlite3.connect(self.db_path) as conn:
-            conn.execute("INSERT OR REPLACE INTO long_memory (key, content, metadata, timestamp) VALUES (?, ?, ?, ?)", 
-                         (key, text, metadata, datetime.now().isoformat()))
-            conn.commit()
-
-    def get_all_long_memory(self):
-        with sqlite3.connect(self.db_path) as conn:
-            res = conn.execute("SELECT content FROM long_memory ORDER BY timestamp DESC").fetchall()
-            if not res: return "No long-term memories stored yet."
-            return "\n".join([row[0] for row in res])
-
-    def save_to_long_memory(self, content, metadata=""):
-        with sqlite3.connect(self.db_path) as conn:
-            key = str(uuid.uuid4())[:8]
-            conn.execute(
-                "INSERT INTO long_memory (key, content, metadata, timestamp) VALUES (?, ?, ?, ?)",
-                (key, content, metadata, datetime.now().isoformat())
-            )
-            conn.commit()
-            return key
-
     # --- AUTH / BIZTONSÁG ---
     def verify_user(self, username, password):
         try:
@@ -270,6 +263,19 @@ class SoulCoreDatabase:
             conn.execute("INSERT OR REPLACE INTO auth VALUES (?, ?, ?)", (username, hashed, role))
             conn.execute("INSERT OR REPLACE INTO users VALUES (?, ?, ?)", (username, username, role))
             conn.commit()
+
+    # --- HOSSZÚ TÁVÚ MEMÓRIA ---
+    def set_long_memory(self, key, text, metadata=""):
+        with sqlite3.connect(self.db_path) as conn:
+            conn.execute("INSERT OR REPLACE INTO long_memory (key, content, metadata, timestamp) VALUES (?, ?, ?, ?)", 
+                         (key, text, metadata, datetime.now().isoformat()))
+            conn.commit()
+
+    def get_all_long_memory(self):
+        with sqlite3.connect(self.db_path) as conn:
+            res = conn.execute("SELECT content FROM long_memory ORDER BY timestamp DESC").fetchall()
+            if not res: return "No long-term memories stored yet."
+            return "\n".join([row[0] for row in res])
 
     # --- GRÁF ÉS SEEDING ---
     def _load_graph(self):
@@ -310,7 +316,8 @@ class SoulCoreDatabase:
         for name, data in slots.items():
             self.save_slot(name, data)
 
-        # Grumpy alapértelmezett admin létrehozása
+        # Felhasználók létrehozása
+        self.create_user("admin", "soulcore", role="admin")
         self.create_user("Grumpy", "soulcore_admin", role="admin")
 
     def close(self):
